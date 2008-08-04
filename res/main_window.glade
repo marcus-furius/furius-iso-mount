@@ -1,0 +1,335 @@
+<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
+<!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
+<glade-interface>
+    <widget class="GtkListStore" id="model1"/>
+    <widget class="GtkWindow" id="main_window">
+        <property name="border_width">5</property>
+        <property name="default_height">320</property>
+        <property name="default_width">560</property>
+        <property name="title" context="yes" translatable="yes">PyFuriusIsoMount</property>
+        <property name="visible">True</property>
+        <child>
+            <widget class="GtkVBox" id="vbox1">
+                <property name="spacing">5</property>
+                <property name="visible">True</property>
+                <child>
+                    <widget class="GtkHBox" id="hbox1">
+                        <property name="spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkLabel" id="label_select_image">
+                                <property name="label" context="yes" translatable="yes">Select Image</property>
+                                <property name="visible">True</property>
+                                <property name="xalign">0.0</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkComboBoxEntry" id="comboentry_image">
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_browse">
+                                <property name="label" context="yes" translatable="yes">Browse</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">140</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkHBox" id="hbox2">
+                        <property name="spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_fuse">
+                                <property name="label" context="yes" translatable="yes">Fuse</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">55</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_loop">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_fuse</property>
+                                <property name="label" context="yes" translatable="yes">Loop</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkLabel" id="label_selected_image">
+                                <property name="label" context="yes" translatable="yes">No Image Selected</property>
+                                <property name="visible">True</property>
+                                <property name="xalign">0.0</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">3</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_mount">
+                                <property name="label" context="yes" translatable="yes">Mount</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">140</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkHBox" id="hbox3">
+                        <property name="spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_md5">
+                                <property name="label" context="yes" translatable="yes">Md5</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">55</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_sha1">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_md5</property>
+                                <property name="is_focus">True</property>
+                                <property name="label" context="yes" translatable="yes">SHA1</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkLabel" id="label_hash">
+                                <property name="label" context="yes" translatable="yes">No Checksum Generated</property>
+                                <property name="visible">True</property>
+                                <property name="xalign">0.0</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">3</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_checksum">
+                                <property name="label" context="yes" translatable="yes">Checksum</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">140</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkHBox" id="hbox4">
+                        <property name="spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkButton" id="button_view_log">
+                                <property name="label" context="yes" translatable="yes">View Log</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_delete_log">
+                                <property name="label" context="yes" translatable="yes">Delete Log</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_brasero</property>
+                                <property name="label" context="yes" translatable="yes">Nautilus</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">4</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkRadioButton" id="radiobutton_brasero">
+                                <property name="label" context="yes" translatable="yes">Brasero</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">3</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_burn">
+                                <property name="label" context="yes" translatable="yes">Burn</property>
+                                <property name="visible">True</property>
+                                <property name="width_request">140</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkHSeparator" id="hseparator1">
+                        <property name="visible">True</property>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">4</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkFrame" id="frame_mounted_images">
+                        <property name="label" context="yes" translatable="yes">Mounted Images</property>
+                        <property name="shadow">none</property>
+                        <property name="shadow_type">none</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                                <property name="border_width">1</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="shadow_type">in</property>
+                                <property name="visible">True</property>
+                                <property name="vscrollbar_policy">automatic</property>
+                                <child>
+                                    <widget class="GtkTreeView" id="treeview_mounted_images">
+                                        <property name="model">model1</property>
+                                        <property name="search_column">0</property>
+                                        <property name="visible">True</property>
+                                    </widget>
+                                </child>
+                            </widget>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="position">5</property>
+                    </packing>
+                </child>
+                <child>
+                    <widget class="GtkHBox" id="hbox5">
+                        <property name="spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkButton" id="button_about">
+                                <property name="is_focus">True</property>
+                                <property name="label">gtk-about</property>
+                                <property name="use_stock">True</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkLabel" id="label_selected_mount_point">
+                                <property name="label" context="yes" translatable="yes">No Mount Point Selected</property>
+                                <property name="visible">True</property>
+                                <property name="xalign">0.0</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkButton" id="button_unmount">
+                                <property name="label" context="yes" translatable="yes">Unmount</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                    </widget>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">6</property>
+                    </packing>
+                </child>
+            </widget>
+        </child>
+    </widget>
+</glade-interface>
