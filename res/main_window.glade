@@ -29,6 +29,7 @@
                         </child>
                         <child>
                             <widget class="GtkComboBoxEntry" id="comboentry_image">
+                                <property name="text_column">0</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -40,6 +41,7 @@
                                 <property name="label" context="yes" translatable="yes">Browse</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
+                                <signal handler="button_browse_clicked" name="clicked"/>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
@@ -96,6 +98,7 @@
                         <child>
                             <widget class="GtkButton" id="button_mount">
                                 <property name="label" context="yes" translatable="yes">Mount</property>
+                                <property name="sensitive">False</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                             </widget>
@@ -141,14 +144,12 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkLabel" id="label_hash">
-                                <property name="label" context="yes" translatable="yes">No Checksum Generated</property>
+                            <widget class="GtkProgressBar" id="progressbar_hash">
+                                <property name="show_text">True</property>
+                                <property name="text" context="yes" translatable="yes">No Checksum Generated</property>
                                 <property name="visible">True</property>
-                                <property name="xalign">0.0</property>
                             </widget>
                             <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
                                 <property name="pack_type">end</property>
                                 <property name="position">3</property>
                             </packing>
@@ -156,8 +157,10 @@
                         <child>
                             <widget class="GtkButton" id="button_checksum">
                                 <property name="label" context="yes" translatable="yes">Checksum</property>
+                                <property name="sensitive">False</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
+                                <signal handler="button_checksum_clicked" name="clicked"/>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
@@ -227,6 +230,7 @@
                         <child>
                             <widget class="GtkButton" id="button_burn">
                                 <property name="label" context="yes" translatable="yes">Burn</property>
+                                <property name="sensitive">False</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                             </widget>
@@ -313,6 +317,7 @@
                         <child>
                             <widget class="GtkButton" id="button_unmount">
                                 <property name="label" context="yes" translatable="yes">Unmount</property>
+                                <property name="sensitive">False</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>

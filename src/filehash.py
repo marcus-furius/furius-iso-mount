@@ -18,40 +18,57 @@
 import md5
 import sha
 import string
+import os
+from gettext import gettext as _
 
-def hexstr(s):
-    h = string.hexdigits
-    r = ''
-    for c in s:
-        i = ord(c)
-        r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
-    return r
+class checksum():
+    def __init__(self):
+        self.hash = _('Calculating, please wait...')
+        self.progress = 0.0
+    def hexstr(self, s):
+        h = string.hexdigits
+        r = ''
+        for c in s:
+            i = ord(c)
+            r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
+        return r
 
-def computemd5(file, CHUNK=2**16):
-    try:
-        file_stream = open(file, 'rb')
-        hash = md5.new()
-        while True:
-            chunk = file_stream.read(CHUNK)
-            if not chunk:
-                break
-            hash.update(chunk)
-    finally:
-        file_stream.close( )
-    return hexstr(hash.digest())
+    def computemd5(self, file, CHUNK=2**16):
+        self.hash = _('Calculating, please wait...')
+        self.progress = 0.0
+        try:
+            file_stream = open(file, 'rb')
+            hash = md5.new()
+            size = os.stat(file).st_size
+            total = 0
+            while True:
+                chunk = file_stream.read(CHUNK)
+                if not chunk:
+                    break
+                hash.update(chunk)
+                total += CHUNK
+                self.progress = float(total) / float(size)
+        finally:
+            file_stream.close( )
+        self.progress = 1.0
+        self.hash =  self.hexstr(hash.digest())
 
-def computesha1(file, CHUNK=2**16):
-    try:
-        file_stream = open(file, 'rb')
-        hash = sha.new()
-        while True:
-            chunk = file_stream.read(CHUNK)
-            if not chunk:
-                break
-            hash.update(chunk)
-    finally:
-        file_stream.close( )
-    return hexstr(hash.digest())
-
-print computemd5('C:\\search.txt')
-print computesha1('C:\\search.txt')
+    def computesha1(self, file, CHUNK=2**16):
+        self.hash = 'Calculating, please wait...'
+        self.progress = 0.0
+        try:
+            file_stream = open(file, 'rb')
+            hash = sha.new()
+            size = os.stat(file).st_size
+            total = 0
+            while True:
+                chunk = file_stream.read(CHUNK)
+                if not chunk:
+                    break
+                hash.update(chunk)
+                total += CHUNK
+                self.progress = float(total) / float(size)
+        finally:
+            file_stream.close( )
+        self.progress = 1.0
+        self.hash = self.hexstr(hash.digest())
