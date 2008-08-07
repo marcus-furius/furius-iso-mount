@@ -39,10 +39,33 @@ class main_window:
     def __init__(self):
         #Set the Glade file
         self.wTree = gtk.glade.XML(globals.application_interface, 'main_window')
+        #Set storage
+        self.image_storage = gtk.ListStore(str, str, str) #Mounted image storage
+        self.history_storage = gtk.ListStore(str)
+        #set entry for history
+        self.wTree.get_widget("comboentry_image").set_model(self.history_storage)
+        self.wTree.get_widget("comboentry_image").set_text_column(0)
+        #Set treeview for images
+        self.treeview = self.wTree.get_widget("treeview_mounted_images")
+        self.treeview.modify_font(pango.FontDescription("sans 8"))
+        self.treeview.set_model(self.image_storage)
+        #Create columns
+        self.column_mount_point = gtk.TreeViewColumn(_("Mount Point"), gtk.CellRendererText(), text=0)
+        self.column_image_file = gtk.TreeViewColumn(_("Image File"), gtk.CellRendererText(), text=1)
+        self.column_fuse = gtk.TreeViewColumn("Fuse", gtk.CellRendererText(), text=2)
+        #Add sorting
+        self.column_mount_point.set_sort_column_id(0)
+        self.column_image_file.set_sort_column_id(1)
+        #Append columns
+        self.treeview.append_column(self.column_mount_point)
+        self.treeview.append_column(self.column_image_file)
+        self.treeview.append_column(self.column_fuse)
+
 
         HANDLERS_AND_METHODS = {
             "button_checksum_clicked": self.button_checksum_clicked,
-            "button_browse_clicked": self.button_browse_clicked}
+            "button_browse_clicked": self.button_browse_clicked,
+            "destroy": self.destroy}
         self.wTree.signal_autoconnect(HANDLERS_AND_METHODS)
 
     def button_browse_clicked(self, data):
@@ -123,6 +146,9 @@ class main_window:
         self.wTree.get_widget("button_mount").set_sensitive(False)
         self.wTree.get_widget("button_checksum").set_sensitive(False)
         self.wTree.get_widget("button_burn").set_sensitive(False)
+
+    def destroy(self, data):
+            gtk.main_quit()
 
 def gtk_iteration():
     while gtk.events_pending():

@@ -1,13 +1,13 @@
 <?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
-    <widget class="GtkListStore" id="model1"/>
     <widget class="GtkWindow" id="main_window">
         <property name="border_width">5</property>
         <property name="default_height">320</property>
         <property name="default_width">560</property>
         <property name="title" context="yes" translatable="yes">PyFuriusIsoMount</property>
         <property name="visible">True</property>
+        <signal handler="destroy" name="destroy"/>
         <child>
             <widget class="GtkVBox" id="vbox1">
                 <property name="spacing">5</property>
@@ -29,7 +29,6 @@
                         </child>
                         <child>
                             <widget class="GtkComboBoxEntry" id="comboentry_image">
-                                <property name="text_column">0</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -202,10 +201,8 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
-                                <property name="active">False</property>
-                                <property name="group">radiobutton_brasero</property>
-                                <property name="label" context="yes" translatable="yes">Nautilus</property>
+                            <widget class="GtkRadioButton" id="radiobutton_brasero">
+                                <property name="label" context="yes" translatable="yes">Brasero</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -216,8 +213,10 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_brasero">
-                                <property name="label" context="yes" translatable="yes">Brasero</property>
+                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_brasero</property>
+                                <property name="label" context="yes" translatable="yes">Nautilus</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -273,7 +272,6 @@
                                 <property name="vscrollbar_policy">automatic</property>
                                 <child>
                                     <widget class="GtkTreeView" id="treeview_mounted_images">
-                                        <property name="model">model1</property>
                                         <property name="search_column">0</property>
                                         <property name="visible">True</property>
                                     </widget>
