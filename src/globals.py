@@ -16,6 +16,14 @@
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+from gettext import gettext as _
+
+#Assembly information
+assembly_title = _('Furius ISO Mount Tool')
+assembly_description = _('Simple Gtk+ Interface to Mount ISO, IMG, BIN, MDF and NRG Image files without burning to disk.')
+assembly_website = 'https://launchpad.net/furiusisomount/'
+assembly_version = '1.9.0.0'
+assembly_name = 'furiusisomount'
 
 # Directories
 home_directory = os.path.expanduser('~')
@@ -26,3 +34,5 @@ document_directory = os.path.join(source_directory, '..', 'doc')
 
 #files
 application_interface = os.path.join(resource_directory, 'main_window.glade')
+about_image = os.path.join(image_directory, 'furiusisomount.png')
+glp_license = os.path.join(document_directory, 'gpl.txt')
