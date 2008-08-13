@@ -27,6 +27,7 @@ assembly_name = 'furiusisomount'
 
 # Directories
 home_directory = os.path.expanduser('~')
+settings_directory = os.path.join(home_directory, '.FuriusIsoMount')
 source_directory = os.path.join(os.path.dirname(__file__))
 resource_directory = os.path.join(source_directory, '..', 'res')
 image_directory = os.path.join(source_directory, '..', 'pix')
@@ -36,3 +37,8 @@ document_directory = os.path.join(source_directory, '..', 'doc')
 application_interface = os.path.join(resource_directory, 'main_window.glade')
 about_image = os.path.join(image_directory, 'furiusisomount.png')
 glp_license = os.path.join(document_directory, 'gpl.txt')
+mount_log = os.path.join(settings_directory, 'FuriusMountLog.txt')
+mount_list = os.path.join(settings_directory, 'FuriusMountList.csv')
+history_list = os.path.join(settings_directory, 'FuriusMountHistory.txt')
+image_burn_button = os.path.join(image_directory, 'imageburn.png')
+image_checksum_button = os.path.join(image_directory, 'imagechecksum.png')
