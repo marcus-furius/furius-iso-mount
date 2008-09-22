@@ -35,7 +35,9 @@ import messagebox
 import aboutbox
 import log
 import os
+import sys
 import subprocess
+import imageaction
 from gettext import gettext as _
 
 class main_window:
@@ -56,6 +58,7 @@ class main_window:
             'button_about_clicked': self.button_about_clicked,
             'button_view_log_clicked': self.button_view_log_clicked,
             'button_delete_log_clicked': self.button_delete_log_clicked,
+            'button_mount_clicked': self.button_mount_clicked,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
         #TODO: Load unmounted images
@@ -257,6 +260,15 @@ class main_window:
                 except:
                     log.write(globals.mount_log, _('Error deleting log.\nUnexpected error: %s' % (sys.exc_info()[0])))
 
+    def button_mount_clicked(self, data):
+        try:
+            imageaction.mount(self.interface.get_widget('label_selected_image').get_label(), self.image_storage, self.history_storage, self.interface.get_widget('radiobutton_fuse').get_active())
+        except OSError, (errno, strerror):
+            messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+        except IOError, (errno, strerror):
+            messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+        except:
+            messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
 
     def button_about_clicked(self, data):
         aboutbox.show(self.interface.get_widget('main_window'))

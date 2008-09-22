@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#This file is part of PyFuriusIsoMount. Copyright 2008 Dean Harris (marcus_furius@hotmail.com)
+#
+#    PyFuriusIsoMount is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    PyFuriusIsoMount is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import globals
+import log
+import subprocess
+from gettext import gettext as _
+
+def mount(image_file, image_storage, history_storage, is_fuse = True):
+    image_name = os.path.basename(image_file)
+    #Replace any characters that could screw us up.
+    mount_location = os.path.join(globals.home_directory, image_name.replace(' ', '_'))
+    mount_location = mount_location.replace('.', '_')
+
+    try:
+        # If an image is already mounted this will throw an IOError
+        if os.path.exists(mount_location):
+            os.rmdir(mount_location)
+        os.mkdir(mount_location)
+        if is_fuse:
+            #Mount the image, writing the executed command to the log
+            mount_command = "fuseiso '%s' '%s'" % (image_file, mount_location)
+            log.write(globals.mount_log, mount_command)
+            try:
+                mount_process = subprocess.Popen(mount_command, shell=True)
+                #Write an entry with instructions on how to remove manually if needed
+                log.write(globals.mount_log,
+                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :fusermount -u %s\n  :rmdir %s'
+                            %(image_file, mount_location, mount_location, mount_location)))
+            except:
+                log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+                raise
+        else: #loop back
+            mount_command = "gksu -u root \"mount -t iso9660 -o loop '%s' '%s'\"" % (image_file, mount_location)
+            log.write(globals.mount_log, mount_command)
+            try:
+                mount_process = subprocess.Popen(mount_command, shell=True)
+                log.write(globals.mount_log,
+                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :gksu -u root umount %s\n  :rmdir %s'
+                            %(image_file, mount_location, mount_location, mount_location)))
+            except:
+                log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+                raise
+        # Add mount point and image to image_storage
+        image_storage.append([mount_location, image_file, str(is_fuse)])
+        # Add the image to the history_storage
+
+        history_storage.append([image_file])
+    except IOError, (errno, strerror):
+        log.write(globals.mount_log, _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)))
+        raise
+    except:
+        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+        raise
+
+
+
