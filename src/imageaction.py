@@ -22,7 +22,7 @@ import log
 import subprocess
 from gettext import gettext as _
 
-def mount(image_file, image_storage, history_storage, is_fuse = True):
+def mount(image_file, image_storage, history_storage, history_array, is_fuse):
     image_name = os.path.basename(image_file)
     #Replace any characters that could screw us up.
     mount_location = os.path.join(globals.home_directory, image_name.replace(' ', '_'))
@@ -60,14 +60,44 @@ def mount(image_file, image_storage, history_storage, is_fuse = True):
         # Add mount point and image to image_storage
         image_storage.append([mount_location, image_file, str(is_fuse)])
         # Add the image to the history_storage
-
-        history_storage.append([image_file])
+        add_item_to_history(image_file, history_storage, history_array)
     except IOError, (errno, strerror):
         log.write(globals.mount_log, _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)))
         raise
     except:
         log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
         raise
+
+
+def add_item_to_history(image_file, history_storage, history_array):
+    #Clear the history_storage
+    history_storage.clear()
+    # If the image already exists in the list, remove it. We'll be adding it
+    # to the top of the list.
+    for string in history_array:
+        if string == image_file:
+            history_array.remove(string)
+    # Add the image to the top
+    history_array.insert(0, image_file)
+    # If we've hit our history length max drop the last entry
+    if len(history_array) > 10:
+        history_array.remove(history_array[10])
+    # Rebuild the storage
+    try:
+        history_file = open(globals.history_list, 'w')
+        for string in history_array:
+            history_storage.append([string])
+            history_file.write('%s\n' %(string))
+    except IOError, (errno, strerror):
+        log.write(globals.mount_log, _('Error saving history to file.\nOS error(%s): %s' % (errno, strerror)))
+        raise
+    except:
+        log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s' % (sys.exc_info()[0])))
+        raise
+    finally:
+        history_file.close( )
+
+
 
 
 

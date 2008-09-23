@@ -64,7 +64,7 @@ class main_window:
         #TODO: Load unmounted images
 
     def load_mount_history(self):
-
+        self.history_array = []
         #Load the history
         if os.path.exists(globals.history_list):
                 try:
@@ -72,6 +72,7 @@ class main_window:
                     self.mount_history = file_history.readlines()
                     for line in self.mount_history:
                         self.history_storage.append([line.strip()])
+                        self.history_array.append(line.strip())
                 except IOError, (errno, strerror):
                     log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s' % (errno, strerror)))
                 except:
@@ -262,7 +263,7 @@ class main_window:
 
     def button_mount_clicked(self, data):
         try:
-            imageaction.mount(self.interface.get_widget('label_selected_image').get_label(), self.image_storage, self.history_storage, self.interface.get_widget('radiobutton_fuse').get_active())
+            imageaction.mount(self.interface.get_widget('label_selected_image').get_label(), self.image_storage, self.history_storage, self.history_array, self.interface.get_widget('radiobutton_fuse').get_active())
         except OSError, (errno, strerror):
             messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
         except IOError, (errno, strerror):
