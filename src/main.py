@@ -59,6 +59,8 @@ class main_window:
             'button_view_log_clicked': self.button_view_log_clicked,
             'button_delete_log_clicked': self.button_delete_log_clicked,
             'button_mount_clicked': self.button_mount_clicked,
+            'comboentry_image_key_release': self.comboentry_image_key_release,
+            'comboentry_image_changed': self.comboentry_image_changed,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
         #TODO: Load unmounted images
@@ -80,7 +82,6 @@ class main_window:
                 finally:
                     file_history.close()
 
-
     def create_settings_directory(self):
 
         #Create settings directory if not present
@@ -93,7 +94,6 @@ class main_window:
                 messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings directory.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
             except:
                 messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings directory.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
-
 
     def set_icons_and_text(self):
 
@@ -130,7 +130,6 @@ class main_window:
         self.interface.get_widget('label_selected_mount_point').modify_font(pango.FontDescription('8'))
         self.interface.get_widget('frame_mounted_images').set_label(_('Mounted Images:'))
 
-
     def set_mounted_image_treeview(self):
 
         #Set treeview for images
@@ -149,20 +148,24 @@ class main_window:
         self.treeview.append_column(self.column_image_file)
         self.treeview.append_column(self.column_fuse)
 
-
     def set_history_entry(self):
-
         #set entry for history
         self.interface.get_widget('comboentry_image').set_model(self.history_storage)
         self.interface.get_widget('comboentry_image').set_text_column(0)
 
-
     def set_storage_lists(self):
-
         #Set storage
         self.image_storage = gtk.ListStore(str, str, str) #Mounted image storage
         self.history_storage = gtk.ListStore(str)
 
+    def comboentry_image_key_release(self, data, event):
+        key = gtk.gdk.keyval_name (event.keyval)
+        if key == 'Return':
+            self.verify_image()
+
+    def comboentry_image_changed(self, data):
+        if self.interface.get_widget('comboentry_image').get_active() != -1:
+            self.verify_image()
 
     def button_browse_clicked(self, data):
         self.select_and_verify_image()
@@ -176,7 +179,7 @@ class main_window:
 
             gtk_iteration()
             checksum = filehash.checksum()
-
+            log.write(globals.mount_log, _('Checksum generation started...'))
             if self.interface.get_widget('radiobutton_md5').get_active():
                 thread.start_new_thread(checksum.computemd5, (selected_image, ))
             else:
@@ -191,8 +194,11 @@ class main_window:
                 time.sleep(0.1)
                 self.interface.get_widget('progressbar_hash').set_fraction(checksum.progress)
                 self.interface.get_widget('progressbar_hash').set_text(checksum.hash)
+            if not self.abort:
+                log.write(globals.mount_log, _('%s:%s' %(selected_image, checksum.hash)))
         else: # Cancel
             self.abort = True
+            log.write(globals.mount_log, _('Checksum generation aborted!'))
         self.interface.get_widget('button_checksum').set_label(_('_Checksum'))
 
     def select_and_verify_image(self):
