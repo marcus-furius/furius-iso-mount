@@ -61,6 +61,8 @@ class main_window:
             'button_mount_clicked': self.button_mount_clicked,
             'comboentry_image_key_release': self.comboentry_image_key_release,
             'comboentry_image_changed': self.comboentry_image_changed,
+            'treeview_mounted_images_cursor_changed': self.treeview_mounted_images_cursor_changed,
+            'button_unmount_clicked': self.button_unmount_clicked,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
         #TODO: Load unmounted images
@@ -274,6 +276,24 @@ class main_window:
             messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
         except IOError, (errno, strerror):
             messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+        except:
+            messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
+
+    def treeview_mounted_images_cursor_changed(self, data):
+        #First get the tree view selection
+        self.mounted_image_selection = self.treeview.get_selection()
+        #Get the TreeModel and TreeIter of our selection
+        (self.model, self.iter) = self.mounted_image_selection.get_selected()
+        self.interface.get_widget('label_selected_mount_point').set_label(self.model.get_value(self.iter, 0))
+        self.is_mounted_image_fuse = self.model.get_value(self.iter, 2)
+        #Allow user to unmount
+        self.interface.get_widget('button_unmount').set_sensitive(True)
+
+    def button_unmount_clicked(self, data):
+        try:
+            imageaction.unmount(self.interface.get_widget('label_selected_mount_point').get_label(), self.is_mounted_image_fuse, self.image_storage, self.iter)
+            self.interface.get_widget('label_selected_mount_point').set_label(_('No Mount Point Selected'))
+            self.interface.get_widget('button_unmount').set_sensitive(False)
         except:
             messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
 

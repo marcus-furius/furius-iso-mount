@@ -97,6 +97,26 @@ def add_item_to_history(image_file, history_storage, history_array):
     finally:
         history_file.close( )
 
+def unmount(mount_location, is_mounted_image_fuse, image_storage, iter):
+    # If the directory doesn't exist, it may have been
+    # unmounted externally so just remove the TreeIter
+    # from the TreeStore
+    try:
+        if os.path.exists(mount_location):
+            if is_mounted_image_fuse == 'True':
+                unmount_command = "fusermount -u '%s'" % (mount_location)
+            else:
+                unmount_command = "gksu -u root \"umount '%s'\"" % (mount_location)
+            log.write(globals.mount_log, unmount_command)
+            unmount_process = subprocess.Popen(unmount_command, shell=True)
+            unmount_process.wait()
+            os.rmdir(mount_location)
+
+        image_storage.remove(iter)
+        log.write(globals.mount_log, _('%s successfully unmounted.'%(mount_location)))
+    except:
+        log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+        raise
 
 
 
