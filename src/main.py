@@ -63,6 +63,7 @@ class main_window:
             'comboentry_image_changed': self.comboentry_image_changed,
             'treeview_mounted_images_cursor_changed': self.treeview_mounted_images_cursor_changed,
             'button_unmount_clicked': self.button_unmount_clicked,
+            'button_burn_clicked': self.button_burn_clicked,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
         #TODO: Load unmounted images
@@ -294,6 +295,12 @@ class main_window:
             imageaction.unmount(self.interface.get_widget('label_selected_mount_point').get_label(), self.is_mounted_image_fuse, self.image_storage, self.iter)
             self.interface.get_widget('label_selected_mount_point').set_label(_('No Mount Point Selected'))
             self.interface.get_widget('button_unmount').set_sensitive(False)
+        except:
+            messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
+
+    def button_burn_clicked(self, data):
+        try:
+            imageaction.burn(self.interface.get_widget('label_selected_image').get_label(), self.interface.get_widget('radiobutton_brasero').get_active())
         except:
             messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
 
