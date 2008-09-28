@@ -97,7 +97,7 @@ def add_item_to_history(image_file, history_storage, history_array):
     finally:
         history_file.close( )
 
-def unmount(mount_location, is_mounted_image_fuse, image_storage, iter):
+def unmount(mount_location, is_mounted_image_fuse, image_storage, iter, is_shutdown = False):
     # If the directory doesn't exist, it may have been
     # unmounted externally so just remove the TreeIter
     # from the TreeStore
@@ -111,8 +111,9 @@ def unmount(mount_location, is_mounted_image_fuse, image_storage, iter):
             unmount_process = subprocess.Popen(unmount_command, shell=True)
             unmount_process.wait()
             os.rmdir(mount_location)
-
-        image_storage.remove(iter)
+        # The iter should not be removed on shutdown or it will screw up the gtk.TreeModel.foreach function
+        if not is_shutdown:
+            image_storage.remove(iter)
         log.write(globals.mount_log, _('%s successfully unmounted.'%(mount_location)))
     except:
         log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
