@@ -41,6 +41,7 @@ import imageaction
 from gettext import gettext as _
 
 class main_window:
+    drop_targets = [( 'text/uri-list', 0, 2 ),]
     def __init__(self):
         #Set the Glade file
         self.interface = gtk.glade.XML(globals.application_interface, 'main_window')
@@ -52,6 +53,7 @@ class main_window:
         self.set_icons_and_text()
         self.load_mount_history()
         self.load_previously_mounted_images()
+
         HANDLERS_AND_METHODS = {
             'button_checksum_clicked': self.button_checksum_clicked,
             'button_browse_clicked': self.button_browse_clicked,
@@ -64,9 +66,9 @@ class main_window:
             'treeview_mounted_images_cursor_changed': self.treeview_mounted_images_cursor_changed,
             'button_unmount_clicked': self.button_unmount_clicked,
             'button_burn_clicked': self.button_burn_clicked,
+            'treeview_mounted_images_drag_data_recieved': self.treeview_mounted_images_drag_data_recieved,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
-        #TODO: Load unmounted images
 
     def load_previously_mounted_images(self):
         if os.path.exists(globals.mount_list):
@@ -148,6 +150,8 @@ class main_window:
         self.interface.get_widget('label_selected_mount_point').set_label(_('No Mount Point Selected'))
         self.interface.get_widget('label_selected_mount_point').modify_font(pango.FontDescription('8'))
         self.interface.get_widget('frame_mounted_images').set_label(_('Mounted Images:'))
+        self.interface.get_widget('label_drag_prompt').set_label(_('Drag image files into above window to quickly mount'))
+        self.interface.get_widget('label_drag_prompt').modify_font(pango.FontDescription('8'))
 
     def set_mounted_image_treeview(self):
 
@@ -166,6 +170,8 @@ class main_window:
         self.treeview.append_column(self.column_mount_point)
         self.treeview.append_column(self.column_image_file)
         self.treeview.append_column(self.column_fuse)
+        #Set Drag n Drop
+        self.treeview.drag_dest_set( gtk.DEST_DEFAULT_ALL, self.drop_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY)
 
     def set_history_entry(self):
         #set entry for history
@@ -239,8 +245,11 @@ class main_window:
         dialog.destroy()
         return is_file_selected
 
-    def verify_image(self):
-        selected_file = self.interface.get_widget('comboentry_image').get_active_text()
+    def verify_image(self, image=''):
+        if image == '':
+            selected_file = self.interface.get_widget('comboentry_image').get_active_text()
+        else:
+            selected_file = image
         # First, ensure that the file exists
         if not os.path.exists(selected_file):
             messagebox.show(self.interface.get_widget('main_window'), _('File not found. \nPlease check source exists.'), gtk.MESSAGE_ERROR)
@@ -248,7 +257,7 @@ class main_window:
             self.interface.get_widget('button_mount').set_sensitive(False)
             self.interface.get_widget('button_checksum').set_sensitive(False)
             self.interface.get_widget('button_burn').set_sensitive(False)
-            return
+            return False
         # Next, ensure it's a supported image
         if selected_file.lower().endswith('.iso') | selected_file.lower().endswith('.img') | selected_file.lower().endswith('.bin') | selected_file.lower().endswith('.mdf') | selected_file.lower().endswith('.nrg'):
             self.interface.get_widget('label_selected_image').set_label(selected_file)
@@ -261,12 +270,13 @@ class main_window:
             else:
                 self.interface.get_widget('radiobutton_loop').set_sensitive(False)
                 self.interface.get_widget('radiobutton_fuse').set_active(True)
-            return
+            return True
         messagebox.show(self.interface.get_widget('main_window'), _('File does not appear to be a compatible Image. \nPlease check source.'), gtk.MESSAGE_ERROR)
         self.interface.get_widget('label_selected_image').set_label(_('No Image Selected'))
         self.interface.get_widget('button_mount').set_sensitive(False)
         self.interface.get_widget('button_checksum').set_sensitive(False)
         self.interface.get_widget('button_burn').set_sensitive(False)
+        return False
 
     def button_view_log_clicked(self, data):
         if os.path.exists(globals.mount_log):
@@ -322,6 +332,25 @@ class main_window:
 
     def button_about_clicked(self, data):
         aboutbox.show(self.interface.get_widget('main_window'))
+
+    def treeview_mounted_images_drag_data_recieved(self, widget, context, x, y, sel, ttype, time):
+        files = sel.data.split('\n')
+        for file in files:
+            if not file:
+                continue
+
+            file = file.strip()
+            if file.startswith('file:///') and os.path.isfile(file[7:]):
+                if self.verify_image(file[7:]):
+                    try:
+                        imageaction.mount(self.interface.get_widget('label_selected_image').get_label(), self.image_storage, self.history_storage, self.history_array, self.interface.get_widget('radiobutton_fuse').get_active())
+                    except OSError, (errno, strerror):
+                        messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+                    except IOError, (errno, strerror):
+                        messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+                    except:
+                        messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
+
 
     def destroy(self, data):
         self.image_storage.foreach(self.clean_up)
