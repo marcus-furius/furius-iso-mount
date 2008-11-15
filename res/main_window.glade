@@ -209,10 +209,8 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
-                                <property name="active">False</property>
-                                <property name="group">radiobutton_brasero</property>
-                                <property name="label" context="yes" translatable="yes">Nautilus</property>
+                            <widget class="GtkRadioButton" id="radiobutton_brasero">
+                                <property name="label" context="yes" translatable="yes">Brasero</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -223,8 +221,10 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_brasero">
-                                <property name="label" context="yes" translatable="yes">Brasero</property>
+                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_brasero</property>
+                                <property name="label" context="yes" translatable="yes">Nautilus</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -283,6 +283,7 @@
                                         <property name="search_column">0</property>
                                         <property name="visible">True</property>
                                         <signal handler="treeview_mounted_images_drag_data_recieved" name="drag-data-received"/>
+                                        <signal handler="treeview_mounted_images_row_activated" name="row-activated"/>
                                         <signal handler="treeview_mounted_images_cursor_changed" name="cursor-changed"/>
                                     </widget>
                                 </child>

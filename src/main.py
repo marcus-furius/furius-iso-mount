@@ -67,6 +67,7 @@ class main_window:
             'button_unmount_clicked': self.button_unmount_clicked,
             'button_burn_clicked': self.button_burn_clicked,
             'treeview_mounted_images_drag_data_recieved': self.treeview_mounted_images_drag_data_recieved,
+            'treeview_mounted_images_row_activated': self.treeview_mounted_images_row_activated,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
 
@@ -351,6 +352,8 @@ class main_window:
                     except:
                         messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
 
+    def treeview_mounted_images_row_activated(self, path, view_column, user_param1):
+        imageaction.browse(self.interface.get_widget('label_selected_mount_point').get_label())
 
     def destroy(self, data):
         self.image_storage.foreach(self.clean_up)

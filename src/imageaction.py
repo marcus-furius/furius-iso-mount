@@ -131,4 +131,14 @@ def burn(image_file, is_brasero = True):
         log.write(globals.mount_log, _('Error burning image.\nUnexpected error: %s' % (sys.exc_info()[0])))
         raise
 
+def browse(mount_location):
+    browse_command = "nautilus --browser '%s'" % (mount_location)
+    try:
+        if os.path.exists(mount_location):
+            subprocess.Popen(browse_command, shell=True)
+            log.write(globals.mount_log, browse_command)
+    except:
+        log.write(globals.mount_log, _('Error launching nautilus.\nUnexpected error: %s' % (sys.exc_info()[0])))
+        raise
+
 
