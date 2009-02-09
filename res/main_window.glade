@@ -67,7 +67,8 @@
                             <widget class="GtkRadioButton" id="radiobutton_fuse">
                                 <property name="label" context="yes" translatable="yes">Fuse</property>
                                 <property name="visible">True</property>
-                                <property name="width_request">55</property>
+                                <property name="width_request">65</property>
+                                <property name="xalign">0.0</property>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
@@ -126,9 +127,10 @@
                         <property name="visible">True</property>
                         <child>
                             <widget class="GtkRadioButton" id="radiobutton_md5">
+                                <property name="is_focus">True</property>
                                 <property name="label" context="yes" translatable="yes">Md5</property>
                                 <property name="visible">True</property>
-                                <property name="width_request">55</property>
+                                <property name="width_request">65</property>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
@@ -209,8 +211,10 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_brasero">
-                                <property name="label" context="yes" translatable="yes">Brasero</property>
+                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
+                                <property name="active">False</property>
+                                <property name="group">radiobutton_brasero</property>
+                                <property name="label" context="yes" translatable="yes">Nautilus</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -221,10 +225,8 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkRadioButton" id="radiobutton_nautilus">
-                                <property name="active">False</property>
-                                <property name="group">radiobutton_brasero</property>
-                                <property name="label" context="yes" translatable="yes">Nautilus</property>
+                            <widget class="GtkRadioButton" id="radiobutton_brasero">
+                                <property name="label" context="yes" translatable="yes">Brasero</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -282,9 +284,9 @@
                                         <property name="is_focus">True</property>
                                         <property name="search_column">0</property>
                                         <property name="visible">True</property>
+                                        <signal handler="treeview_mounted_images_cursor_changed" name="cursor-changed"/>
                                         <signal handler="treeview_mounted_images_drag_data_recieved" name="drag-data-received"/>
                                         <signal handler="treeview_mounted_images_row_activated" name="row-activated"/>
-                                        <signal handler="treeview_mounted_images_cursor_changed" name="cursor-changed"/>
                                     </widget>
                                 </child>
                             </widget>

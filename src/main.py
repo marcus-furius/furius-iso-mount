@@ -41,7 +41,7 @@ import imageaction
 from gettext import gettext as _
 
 class main_window:
-    drop_targets = [( 'text/uri-list', 0, 2 ),]
+    drop_targets = [( 'text/plain', 0, 3 ),]
     def __init__(self):
         #Set the Glade file
         self.interface = gtk.glade.XML(globals.application_interface, 'main_window')
@@ -341,6 +341,7 @@ class main_window:
                 continue
 
             file = file.strip()
+            file = file.replace('%20', ' ')
             if file.startswith('file:///') and os.path.isfile(file[7:]):
                 if self.verify_image(file[7:]):
                     try:
