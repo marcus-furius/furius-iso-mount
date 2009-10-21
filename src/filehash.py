@@ -15,8 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
-import md5
-import sha
+import hashlib
 import string
 import os
 from gettext import gettext as _
@@ -38,7 +37,7 @@ class checksum():
         self.progress = 0.0
         try:
             file_stream = open(file, 'rb')
-            hash = md5.new()
+            hash = hashlib.md5()
             size = os.stat(file).st_size
             total = 0
             while True:
@@ -58,7 +57,7 @@ class checksum():
         self.progress = 0.0
         try:
             file_stream = open(file, 'rb')
-            hash = sha.new()
+            hash = hashlib.sha1()
             size = os.stat(file).st_size
             total = 0
             while True:
