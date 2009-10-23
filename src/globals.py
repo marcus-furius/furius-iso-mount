@@ -20,9 +20,9 @@ from gettext import gettext as _
 
 #Assembly information
 assembly_title = _('Furius ISO Mount Tool')
-assembly_description = _('Simple Gtk+ Interface to Mount ISO, IMG, BIN, MDF and NRG Image files without burning to disk.')
+assembly_description = _('''Simple Gtk+ Interface to Mount ISO, IMG, BIN, MDF and NRG Image files without burning to disk.''')
 assembly_website = 'https://launchpad.net/furiusisomount/'
-assembly_version = '0.11.2.0'
+assembly_version = '0.11.1.3'
 assembly_name = 'furiusisomount'
 
 # Directories

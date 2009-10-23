@@ -42,6 +42,7 @@
                             <widget class="GtkButton" id="button_browse">
                                 <property name="is_focus">True</property>
                                 <property name="label" context="yes" translatable="yes">Browse</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                                 <signal handler="button_browse_clicked" name="clicked"/>
@@ -103,6 +104,7 @@
                             <widget class="GtkButton" id="button_mount">
                                 <property name="label" context="yes" translatable="yes">Mount</property>
                                 <property name="sensitive">False</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                                 <signal handler="button_mount_clicked" name="clicked"/>
@@ -164,6 +166,7 @@
                             <widget class="GtkButton" id="button_checksum">
                                 <property name="label" context="yes" translatable="yes">Checksum</property>
                                 <property name="sensitive">False</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                                 <signal handler="button_checksum_clicked" name="clicked"/>
@@ -190,6 +193,7 @@
                             <widget class="GtkButton" id="button_view_log">
                                 <property name="is_focus">True</property>
                                 <property name="label" context="yes" translatable="yes">View Log</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <signal handler="button_view_log_clicked" name="clicked"/>
                             </widget>
@@ -200,7 +204,9 @@
                         </child>
                         <child>
                             <widget class="GtkButton" id="button_delete_log">
+                                <property name="is_focus">True</property>
                                 <property name="label" context="yes" translatable="yes">Delete Log</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <signal handler="button_delete_log_clicked" name="clicked"/>
                             </widget>
@@ -240,6 +246,7 @@
                             <widget class="GtkButton" id="button_burn">
                                 <property name="label" context="yes" translatable="yes">Burn</property>
                                 <property name="sensitive">False</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <property name="width_request">140</property>
                                 <signal handler="button_burn_clicked" name="clicked"/>
@@ -361,6 +368,7 @@
                             <widget class="GtkButton" id="button_unmount">
                                 <property name="label" context="yes" translatable="yes">Unmount</property>
                                 <property name="sensitive">False</property>
+                                <property name="use_underline">True</property>
                                 <property name="visible">True</property>
                                 <signal handler="button_unmount_clicked" name="clicked"/>
                             </widget>
