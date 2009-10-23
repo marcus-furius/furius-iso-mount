@@ -121,6 +121,9 @@ class main_window:
 
         #Set the Icons and Text
         self.interface.get_widget('main_window').set_title('%s %s' % (globals.assembly_title, globals.assembly_version))
+        #Allowbutton imagestobe shown
+        gtk_settings = self.interface.get_widget('main_window').get_settings()
+        gtk_settings.set_property("gtk-button-images", True)
         self.browse_button_image = gtk.Image()
         self.browse_button_image.set_from_stock(gtk.STOCK_OPEN, gtk.ICON_SIZE_MENU)
         self.interface.get_widget('button_browse').set_image(self.browse_button_image)
