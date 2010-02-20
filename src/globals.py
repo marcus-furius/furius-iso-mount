@@ -22,16 +22,16 @@ from gettext import gettext as _
 assembly_title = _('Furius ISO Mount Tool')
 assembly_description = _('''Simple Gtk+ Interface to Mount ISO, IMG, BIN, MDF and NRG Image files without burning to disk.''')
 assembly_website = 'https://launchpad.net/furiusisomount/'
-assembly_version = '0.11.1.2'
+assembly_version = '0.11.1.3'
 assembly_name = 'furiusisomount'
 
 # Directories
 home_directory = os.path.expanduser('~')
 settings_directory = os.path.join(home_directory, '.FuriusIsoMount')
 source_directory = os.path.join(os.path.dirname(__file__))
-resource_directory = os.path.join(source_directory, 'res')
-image_directory = os.path.join(source_directory, 'pix')
-document_directory = os.path.join(source_directory, 'doc')
+resource_directory = os.path.join(source_directory, '..', 'res')
+image_directory = os.path.join(source_directory, '..', 'pix')
+document_directory = os.path.join(source_directory, '..', 'doc')
 
 #files
 application_interface = os.path.join(resource_directory, 'main_window.glade')
