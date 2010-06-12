@@ -20,12 +20,23 @@ import sys
 import globals
 import log
 import subprocess
+from ConfigParser import *
 from gettext import gettext as _
 
 def mount(image_file, image_storage, history_storage, history_array, is_fuse):
     image_name = os.path.basename(image_file)
+    
+    #Get the mount root point
+    config = ConfigParser()
+    try:
+        config.read(globals.settings_file)
+        mount_root = config.get("mount_options", "mount_point")
+    except:
+        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+        log.write(globals.mount_log, _('Defaulting to home directory for mounting.'))
+        mount_root = globals.home_directory
     #Replace any characters that could screw us up.
-    mount_location = os.path.join(globals.home_directory, image_name.replace(' ', '_'))
+    mount_location = os.path.join(mount_root, image_name.replace(' ', '_'))
     mount_location = mount_location.replace('.', '_')
 
     try:

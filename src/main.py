@@ -40,12 +40,14 @@ import subprocess
 import imageaction
 from gettext import gettext as _
 
+
 class main_window:
-    drop_targets = [( 'text/plain', 0, 3 ),]
-    def __init__(self):
+    drop_targets = [('text/plain', 0, 3), ]
+    def __init__(self, parameter):
         #Set the Glade file
         self.interface = gtk.glade.XML(globals.application_interface, 'main_window')
         self.create_settings_directory()
+        self.create_settings_file()
         log.write(globals.mount_log, _('Application started...'))
         self.set_storage_lists()
         self.set_history_entry()
@@ -70,7 +72,16 @@ class main_window:
             'treeview_mounted_images_row_activated': self.treeview_mounted_images_row_activated,
             'destroy': self.destroy}
         self.interface.signal_autoconnect(HANDLERS_AND_METHODS)
-
+        if (parameter != ''):
+            try:
+                imageaction.mount(parameter, self.image_storage, self.history_storage, self.history_array, self.interface.get_widget('radiobutton_fuse').get_active())
+            except OSError, (errno, strerror):
+                messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+            except IOError, (errno, strerror):
+                messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+            except:
+                messagebox.show(self.interface.get_widget('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
+        
     def load_previously_mounted_images(self):
         if os.path.exists(globals.mount_list):
             try:
@@ -117,6 +128,24 @@ class main_window:
             except:
                 messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings directory.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
 
+    def create_settings_file(self):
+        
+        #Create the setting file if it doesn't exist
+        if not os.path.exists(globals.settings_file):
+            try:
+                settings_object = open(globals.settings_file, 'w')
+                mount_point_setting = '[mount_options]\nmount_point: %s' % globals.home_directory
+                settings_object.write(mount_point_setting);
+                log.write(globals.mount_log, _('New settings file created at %s' % globals.settings_file))
+            except OSError, (errno, strerror):
+                messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings file.\nOS error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+            except IOError, (errno, strerror):
+                messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings file.\nIO error(%s): %s' % (errno, strerror)), gtk.MESSAGE_ERROR)
+            except:
+                messagebox.show(self.interface.get_widget('main_window'), _('Error creating settings file.\nUnexpected error: %s' % (sys.exc_info()[0])), gtk.MESSAGE_ERROR)
+            finally:
+                settings_object.close( )
+    
     def set_icons_and_text(self):
 
         #Set the Icons and Text
@@ -175,7 +204,7 @@ class main_window:
         self.treeview.append_column(self.column_image_file)
         self.treeview.append_column(self.column_fuse)
         #Set Drag n Drop
-        self.treeview.drag_dest_set( gtk.DEST_DEFAULT_ALL, self.drop_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY)
+        self.treeview.drag_dest_set(gtk.DEST_DEFAULT_ALL, self.drop_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY)
 
     def set_history_entry(self):
         #set entry for history
@@ -210,9 +239,9 @@ class main_window:
             checksum = filehash.checksum()
             log.write(globals.mount_log, _('Checksum generation started...'))
             if self.interface.get_widget('radiobutton_md5').get_active():
-                thread.start_new_thread(checksum.computemd5, (selected_image, ))
+                thread.start_new_thread(checksum.computemd5, (selected_image,))
             else:
-                thread.start_new_thread(checksum.computesha1, (selected_image, ))
+                thread.start_new_thread(checksum.computesha1, (selected_image,))
 
             while checksum.hash == _('Calculating, please wait...'):
                 if self.abort:
@@ -224,7 +253,7 @@ class main_window:
                 self.interface.get_widget('progressbar_hash').set_fraction(checksum.progress)
                 self.interface.get_widget('progressbar_hash').set_text(checksum.hash)
             if not self.abort:
-                log.write(globals.mount_log, _('%s:%s' %(selected_image, checksum.hash)))
+                log.write(globals.mount_log, _('%s:%s' % (selected_image, checksum.hash)))
         else: # Cancel
             self.abort = True
             log.write(globals.mount_log, _('Checksum generation aborted!'))
@@ -286,7 +315,7 @@ class main_window:
         if os.path.exists(globals.mount_log):
             subprocess.Popen(['gedit', globals.mount_log])
         else:
-            messagebox.show(self.interface.get_widget('main_window'), _('%s not found.' %(globals.mount_log)))
+            messagebox.show(self.interface.get_widget('main_window'), _('%s not found.' % (globals.mount_log)))
 
     def button_delete_log_clicked(self, data):
         if os.path.exists(globals.mount_log):
@@ -373,14 +402,14 @@ class main_window:
         else: #write the history to file for loading later
             try:
                 mount_file = open(globals.mount_list, 'a')
-                string = '%s,%s,%s' %(model.get_value(iter, 0), model.get_value(iter, 1), model.get_value(iter, 2))
-                mount_file.write('%s\n' %(string))
+                string = '%s,%s,%s' % (model.get_value(iter, 0), model.get_value(iter, 1), model.get_value(iter, 2))
+                mount_file.write('%s\n' % (string))
             except IOError, (errno, strerror):
                 log.write(globals.mount_log, _('Error saving unmounted images to file.\nOS error(%s): %s' % (errno, strerror)))
             except:
                 log.write(globals.mount_log, _('Error saving unmounted images to file\nUnexpected error: %s' % (sys.exc_info()[0])))
             finally:
-                mount_file.close( )
+                mount_file.close()
         return False
 
 def gtk_iteration():
@@ -388,5 +417,8 @@ def gtk_iteration():
         gtk.main_iteration(False)
 
 if __name__ == '__main__':
-    app = main_window()
+    parameter = ''
+    if len(sys.argv) > 1:
+        parameter = sys.argv[1]
+    app = main_window(parameter)
     gtk.main()
