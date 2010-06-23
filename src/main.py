@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 try:
     import pygtk
     pygtk.require("2.0")
@@ -35,7 +36,6 @@ import messagebox
 import aboutbox
 import log
 import os
-import sys
 import subprocess
 import imageaction
 from gettext import gettext as _

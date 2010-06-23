@@ -20,7 +20,7 @@ import sys
 import globals
 import log
 import subprocess
-from ConfigParser import *
+from ConfigParser import ConfigParser
 from gettext import gettext as _
 
 def mount(image_file, image_storage, history_storage, history_array, is_fuse):
@@ -58,7 +58,7 @@ def mount(image_file, image_storage, history_storage, history_array, is_fuse):
                 log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
                 raise
         else: #loop back
-            mount_command = "gksu -u root \"mount -t iso9660 -o loop '%s' '%s'\"" % (image_file, mount_location)
+            mount_command = "gksu -u root \"mount -t auto -o loop '%s' '%s'\"" % (image_file, mount_location)
             log.write(globals.mount_log, mount_command)
             try:
                 mount_process = subprocess.Popen(mount_command, shell=True)
