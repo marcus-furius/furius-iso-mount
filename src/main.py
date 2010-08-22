@@ -313,7 +313,7 @@ class main_window:
 
     def button_view_log_clicked(self, data):
         if os.path.exists(globals.mount_log):
-            subprocess.Popen(['gedit', globals.mount_log])
+            subprocess.Popen(['gnome-text-editor', globals.mount_log])
         else:
             messagebox.show(self.interface.get_widget('main_window'), _('%s not found.' % (globals.mount_log)))
 
