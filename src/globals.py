@@ -32,6 +32,9 @@ source_directory = os.path.join(os.path.dirname(__file__))
 resource_directory = os.path.join(source_directory, '..', 'res')
 image_directory = os.path.join(source_directory, '..', 'pix')
 document_directory = os.path.join(source_directory, '..', 'doc')
+locale_directory = os.path.join(source_directory, '..', 'locale')
+if not os.path.isdir(locale_directory) :
+    locale_directory = os.path.join(source_directory, '..', '..', 'locale')
 
 #files
 application_interface = os.path.join(resource_directory, 'main_window.glade')

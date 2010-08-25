@@ -34,16 +34,24 @@ import time
 import thread
 import messagebox
 import aboutbox
+import locale
 import log
 import os
 import subprocess
 import imageaction
+import gettext
 from gettext import gettext as _
 
 
 class main_window:
     drop_targets = [('text/plain', 0, 3), ]
     def __init__(self, parameter):
+        
+        # Localization
+        locale.setlocale(locale.LC_ALL, '')
+        gettext.textdomain(globals.assembly_name)
+        gettext.bindtextdomain(globals.assembly_name, globals.locale_directory)
+
         #Set the Glade file
         self.interface = gtk.glade.XML(globals.application_interface, 'main_window')
         self.create_settings_directory()
