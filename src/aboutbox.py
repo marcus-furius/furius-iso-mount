@@ -32,9 +32,9 @@ def show(parent) :
     dlg.set_name(globals.assembly_title)
     dlg.set_version(globals.assembly_version)
     dlg.set_website(globals.assembly_website)
-    dlg.set_translator_credits(_('translator-credits'))
+    dlg.set_translator_credits(_('Launchpad Translators'))
     dlg.set_comments(globals.assembly_description)
-    #dlg.set_artists([''])
+    
 
     dlg.set_authors([
         _('Developer:'),
