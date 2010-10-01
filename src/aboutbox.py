@@ -32,7 +32,13 @@ def show(parent) :
     dlg.set_name(globals.assembly_title)
     dlg.set_version(globals.assembly_version)
     dlg.set_website(globals.assembly_website)
-    dlg.set_translator_credits(_('Launchpad Translators'))
+    dlg.set_translator_credits(_('''translator-credits
+        Chinese (Simplified) (zh_CN): XsLiDian
+        Greek (el):  Christos Spyroglou
+        Italian (it): Christos Spyroglou
+        Polish (pl): It's Easy
+        Russian (ru): Alexey Ivanes
+        Spanish (es): Adrián García'''))
     dlg.set_comments(globals.assembly_description)
     
 
