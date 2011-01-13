@@ -33,12 +33,22 @@ def show(parent) :
     dlg.set_version(globals.assembly_version)
     dlg.set_website(globals.assembly_website)
     dlg.set_translator_credits(_('''translator-credits
+        Bulgarian (bg): Svetoslav Stefanov
         Chinese (Simplified) (zh_CN): XsLiDian
+        Dutch (nl): Dirk Roos
+        French (f): bouchard renaud, peterl
+        German (de): Klaus Riesterer
+        Hunsrik (hrx): Adriano Steffler
+        Italian (it): Christos Spyroglou
         Greek (el):  Christos Spyroglou
         Italian (it): Christos Spyroglou
+        Japanese (ja): YAMAKAGE Hideo
         Polish (pl): It's Easy
+        Portuguese (pt): Celso Henriques
         Russian (ru): Alexey Ivanes
-        Spanish (es): Adrián García'''))
+        Spanish (es): Adrián García
+        Swedish (sv): Anders Pamdal
+        Turkish (tr): Emre AYTAÇ'''))
     dlg.set_comments(globals.assembly_description)
     
 
