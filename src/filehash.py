@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #This file is part of PyFuriusIsoMount. Copyright 2008 Dean Harris (marcus_furius@hotmail.com)
 #
@@ -16,7 +16,6 @@
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
 import hashlib
-import string
 import os
 from gettext import gettext as _
 
@@ -24,13 +23,6 @@ class checksum():
     def __init__(self):
         self.hash = _('Calculating, please wait...')
         self.progress = 0.0
-    def hexstr(self, s):
-        h = string.hexdigits
-        r = ''
-        for c in s:
-            i = ord(c)
-            r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
-        return r
 
     def computemd5(self, file, CHUNK=2**16):
         self.hash = _('Calculating, please wait...')
@@ -50,7 +42,7 @@ class checksum():
         finally:
             file_stream.close( )
         self.progress = 1.0
-        self.hash =  self.hexstr(hash.digest())
+        self.hash = hash.hexdigest()
 
     def computesha1(self, file, CHUNK=2**16):
         self.hash = 'Calculating, please wait...'
@@ -70,4 +62,4 @@ class checksum():
         finally:
             file_stream.close( )
         self.progress = 1.0
-        self.hash = self.hexstr(hash.digest())
+        self.hash = hash.hexdigest()

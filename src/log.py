@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #This file is part of PyFuriusIsoMount. Copyright 2008 Dean Harris (marcus_furius@hotmail.com)
 #
@@ -16,12 +16,12 @@
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-import StringIO
+import io
 
 def write(log, message):
     try:
         now = time.asctime(time.localtime())
-        log_entry = StringIO.StringIO()
+        log_entry = io.StringIO()
         log_entry.write(' %s\n' %(now))
         log_entry.write('    :\n')
         log_entry.write('    :%s\n' %(message))

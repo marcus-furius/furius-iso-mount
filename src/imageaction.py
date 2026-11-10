@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #This file is part of PyFuriusIsoMount. Copyright 2008 Dean Harris (marcus_furius@hotmail.com)
 #
@@ -20,7 +20,7 @@ import sys
 import globals
 import log
 import subprocess
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from gettext import gettext as _
 
 def mount(image_file, image_storage, history_storage, history_array, is_fuse):
@@ -58,12 +58,12 @@ def mount(image_file, image_storage, history_storage, history_array, is_fuse):
                 log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
                 raise
         else: #loop back
-            mount_command = "gksu -u root \"mount -t auto -o loop '%s' '%s'\"" % (image_file, mount_location)
+            mount_command = "pkexec mount -t auto -o loop '%s' '%s'" % (image_file, mount_location)
             log.write(globals.mount_log, mount_command)
             try:
                 mount_process = subprocess.Popen(mount_command, shell=True)
                 log.write(globals.mount_log,
-                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :gksu -u root umount %s\n  :rmdir %s'
+                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :pkexec umount %s\n  :rmdir %s'
                             %(image_file, mount_location, mount_location, mount_location)))
             except:
                 log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
@@ -72,8 +72,8 @@ def mount(image_file, image_storage, history_storage, history_array, is_fuse):
         image_storage.append([mount_location, image_file, str(is_fuse)])
         # Add the image to the history_storage
         add_item_to_history(image_file, history_storage, history_array)
-    except IOError, (errno, strerror):
-        log.write(globals.mount_log, _('Error mounting image.\nOS error(%s): %s' % (errno, strerror)))
+    except OSError as e:
+        log.write(globals.mount_log, _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)))
         raise
     except:
         log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
@@ -99,8 +99,8 @@ def add_item_to_history(image_file, history_storage, history_array):
         for string in history_array:
             history_storage.append([string])
             history_file.write('%s\n' %(string))
-    except IOError, (errno, strerror):
-        log.write(globals.mount_log, _('Error saving history to file.\nOS error(%s): %s' % (errno, strerror)))
+    except OSError as e:
+        log.write(globals.mount_log, _('Error saving history to file.\nOS error(%s): %s' % (e.errno, e.strerror)))
         raise
     except:
         log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s' % (sys.exc_info()[0])))
@@ -117,7 +117,7 @@ def unmount(mount_location, is_mounted_image_fuse, image_storage, iter, is_shutd
             if is_mounted_image_fuse == 'True':
                 unmount_command = "fusermount -u '%s'" % (mount_location)
             else:
-                unmount_command = "gksu -u root \"umount '%s'\"" % (mount_location)
+                unmount_command = "pkexec umount '%s'" % (mount_location)
             log.write(globals.mount_log, unmount_command)
             unmount_process = subprocess.Popen(unmount_command, shell=True)
             unmount_process.wait()

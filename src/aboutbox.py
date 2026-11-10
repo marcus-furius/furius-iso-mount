@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #This file is part of PyFuriusIsoMount. Copyright 2008 Dean Harris (marcus_furius@hotmail.com)
 #
@@ -15,7 +15,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, GdkPixbuf
 import os.path
 import globals
 from gettext import gettext as _
@@ -25,7 +27,7 @@ def show(parent) :
     """
         Show an about dialog box
     """
-    dlg = gtk.AboutDialog()
+    dlg = Gtk.AboutDialog()
     dlg.set_transient_for(parent)
 
     # Set credit information
@@ -59,7 +61,7 @@ def show(parent) :
 
     # Set logo
     if os.path.exists(globals.about_image) :
-        dlg.set_logo(gtk.gdk.pixbuf_new_from_file(globals.about_image))
+        dlg.set_logo(GdkPixbuf.Pixbuf.new_from_file(globals.about_image))
 
     # Load the licence from the disk if possible
     if os.path.exists(globals.glp_license) :
