@@ -19,17 +19,11 @@ import time
 import io
 
 def write(log, message):
-    try:
-        now = time.asctime(time.localtime())
-        log_entry = io.StringIO()
+    now = time.asctime(time.localtime())
+    with io.StringIO() as log_entry:
         log_entry.write(' %s\n' %(now))
         log_entry.write('    :\n')
         log_entry.write('    :%s\n' %(message))
         log_entry.write('-------------------------------\n')
-        try:
-            log_object = open(log, 'a')
+        with open(log, 'a') as log_object:
             log_object.write(log_entry.getvalue())
-        finally:
-            log_object.close( )
-    finally:
-        log_entry.close( )

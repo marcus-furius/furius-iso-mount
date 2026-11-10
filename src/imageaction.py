@@ -16,137 +16,119 @@
 #    along with PyFuriusIsoMount.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
+import shlex
 import globals
 import log
 import subprocess
 from configparser import ConfigParser
 from gettext import gettext as _
 
-def mount(image_file, image_storage, history_storage, history_array, is_fuse):
+def mount(image_file, is_fuse):
+    """Mount image_file and return the mount_location it was mounted at. Raises on failure."""
     image_name = os.path.basename(image_file)
-    
+
     #Get the mount root point
     config = ConfigParser()
     try:
         config.read(globals.settings_file)
         mount_root = config.get("mount_options", "mount_point")
-    except:
-        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error reading mount point setting.\nUnexpected error: %s' % (e)))
         log.write(globals.mount_log, _('Defaulting to home directory for mounting.'))
         mount_root = globals.home_directory
-    #Replace any characters that could screw us up.
-    mount_location = os.path.join(mount_root, image_name.replace(' ', '_'))
-    mount_location = mount_location.replace('.', '_')
+    #Replace any characters that could screw up the new directory's name.
+    safe_name = image_name.replace(' ', '_').replace('.', '_')
+    mount_location = os.path.join(mount_root, safe_name)
 
     try:
-        # If an image is already mounted this will throw an IOError
+        # If an image is already mounted this will throw an OSError
         if os.path.exists(mount_location):
             os.rmdir(mount_location)
         os.mkdir(mount_location)
+
         if is_fuse:
-            #Mount the image, writing the executed command to the log
-            mount_command = "fuseiso '%s' '%s'" % (image_file, mount_location)
-            log.write(globals.mount_log, mount_command)
-            try:
-                mount_process = subprocess.Popen(mount_command, shell=True)
-                #Write an entry with instructions on how to remove manually if needed
-                log.write(globals.mount_log,
-                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :fusermount -u %s\n  :rmdir %s'
-                            %(image_file, mount_location, mount_location, mount_location)))
-            except:
-                log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
-                raise
+            mount_args = ['fuseiso', image_file, mount_location]
+            unmount_hint = 'fusermount -u %s' % shlex.quote(mount_location)
         else: #loop back
-            mount_command = "pkexec mount -t auto -o loop '%s' '%s'" % (image_file, mount_location)
-            log.write(globals.mount_log, mount_command)
-            try:
-                mount_process = subprocess.Popen(mount_command, shell=True)
-                log.write(globals.mount_log,
-                          _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :pkexec umount %s\n  :rmdir %s'
-                            %(image_file, mount_location, mount_location, mount_location)))
-            except:
-                log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
-                raise
-        # Add mount point and image to image_storage
-        image_storage.append([mount_location, image_file, str(is_fuse)])
-        # Add the image to the history_storage
-        add_item_to_history(image_file, history_storage, history_array)
+            mount_args = ['pkexec', 'mount', '-t', 'auto', '-o', 'loop', image_file, mount_location]
+            unmount_hint = 'pkexec umount %s' % shlex.quote(mount_location)
+
+        #Mount the image, writing the executed command to the log
+        log.write(globals.mount_log, shlex.join(mount_args))
+        returncode = subprocess.Popen(mount_args).wait()
+        if returncode != 0:
+            raise RuntimeError(_('Mount command exited with status %s.') % returncode)
+
+        #Write an entry with instructions on how to remove manually if needed
+        log.write(globals.mount_log,
+                  _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :%s\n  :rmdir %s'
+                    % (image_file, mount_location, unmount_hint, mount_location)))
+        return mount_location
     except OSError as e:
-        log.write(globals.mount_log, _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)))
+        log.write(globals.mount_log, _('Error mounting image.\nOS error: %s' % (e)))
         raise
-    except:
-        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (e)))
         raise
 
 
-def add_item_to_history(image_file, history_storage, history_array):
-    #Clear the history_storage
-    history_storage.clear()
+def add_item_to_history(image_file, history_array):
+    """Insert image_file at the front of history_array (deduping and capping its length), and persist it to disk."""
     # If the image already exists in the list, remove it. We'll be adding it
     # to the top of the list.
-    for string in history_array:
-        if string == image_file:
-            history_array.remove(string)
+    if image_file in history_array:
+        history_array.remove(image_file)
     # Add the image to the top
     history_array.insert(0, image_file)
     # If we've hit our history length max drop the last entry
     if len(history_array) > 10:
-        history_array.remove(history_array[10])
-    # Rebuild the storage
+        del history_array[10]
+    # Persist the history to disk
     try:
-        history_file = open(globals.history_list, 'w')
-        for string in history_array:
-            history_storage.append([string])
-            history_file.write('%s\n' %(string))
+        with open(globals.history_list, 'w') as history_file:
+            for string in history_array:
+                history_file.write('%s\n' %(string))
     except OSError as e:
-        log.write(globals.mount_log, _('Error saving history to file.\nOS error(%s): %s' % (e.errno, e.strerror)))
+        log.write(globals.mount_log, _('Error saving history to file.\nOS error: %s' % (e)))
         raise
-    except:
-        log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s' % (sys.exc_info()[0])))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s' % (e)))
         raise
-    finally:
-        history_file.close( )
 
-def unmount(mount_location, is_mounted_image_fuse, image_storage, iter, is_shutdown = False):
-    # If the directory doesn't exist, it may have been
-    # unmounted externally so just remove the TreeIter
-    # from the TreeStore
+def unmount(mount_location, is_mounted_image_fuse):
+    """Unmount mount_location. Raises on failure."""
     try:
+        # If the directory doesn't exist, it may have been unmounted externally already.
         if os.path.exists(mount_location):
             if is_mounted_image_fuse == 'True':
-                unmount_command = "fusermount -u '%s'" % (mount_location)
+                unmount_args = ['fusermount', '-u', mount_location]
             else:
-                unmount_command = "pkexec umount '%s'" % (mount_location)
-            log.write(globals.mount_log, unmount_command)
-            unmount_process = subprocess.Popen(unmount_command, shell=True)
-            unmount_process.wait()
+                unmount_args = ['pkexec', 'umount', mount_location]
+            log.write(globals.mount_log, shlex.join(unmount_args))
+            returncode = subprocess.Popen(unmount_args).wait()
+            if returncode != 0:
+                raise RuntimeError(_('Unmount command exited with status %s.') % returncode)
             os.rmdir(mount_location)
-        # The iter should not be removed on shutdown or it will screw up the gtk.TreeModel.foreach function
-        if not is_shutdown:
-            image_storage.remove(iter)
         log.write(globals.mount_log, _('%s successfully unmounted.'%(mount_location)))
-    except:
-        log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (e)))
         raise
 
 def burn(image_file):
     try:
-        burn_command = "brasero --image '%s'" % (image_file)
-        subprocess.Popen(burn_command, shell=True)
-        log.write(globals.mount_log, burn_command)
-    except:
-        log.write(globals.mount_log, _('Error burning image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+        burn_args = ['brasero', '--image', image_file]
+        subprocess.Popen(burn_args)
+        log.write(globals.mount_log, shlex.join(burn_args))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error burning image.\nUnexpected error: %s' % (e)))
         raise
 
 def browse(mount_location):
-    browse_command = "nautilus --browser '%s'" % (mount_location)
     try:
         if os.path.exists(mount_location):
-            subprocess.Popen(browse_command, shell=True)
-            log.write(globals.mount_log, browse_command)
-    except:
-        log.write(globals.mount_log, _('Error launching nautilus.\nUnexpected error: %s' % (sys.exc_info()[0])))
+            browse_args = ['nautilus', '--browser', mount_location]
+            subprocess.Popen(browse_args)
+            log.write(globals.mount_log, shlex.join(browse_args))
+    except Exception as e:
+        log.write(globals.mount_log, _('Error launching nautilus.\nUnexpected error: %s' % (e)))
         raise
-
-

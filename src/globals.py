@@ -22,8 +22,12 @@ from gettext import gettext as _
 assembly_title = _('Furius ISO Mount Tool')
 assembly_description = _('''Simple Gtk+ Interface to Mount ISO, IMG, BIN, MDF and NRG Image files without burning to disk.''')
 assembly_website = 'https://launchpad.net/furiusisomount/'
-assembly_version = '0.11.3.1'
+assembly_version = '0.12.0'
 assembly_name = 'furiusisomount'
+
+# Supported image file extensions
+SUPPORTED_EXTENSIONS = ('.iso', '.img', '.bin', '.mdf', '.nrg')
+LOOP_SUPPORTED_EXTENSIONS = ('.iso', '.img')
 
 # Directories
 home_directory = os.path.expanduser('~')

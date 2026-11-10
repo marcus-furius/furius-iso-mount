@@ -23,43 +23,28 @@ class checksum():
     def __init__(self):
         self.hash = _('Calculating, please wait...')
         self.progress = 0.0
+        self.done = False
 
     def computemd5(self, file, CHUNK=2**16):
-        self.hash = _('Calculating, please wait...')
-        self.progress = 0.0
-        try:
-            file_stream = open(file, 'rb')
-            hash = hashlib.md5()
-            size = os.stat(file).st_size
-            total = 0
-            while True:
-                chunk = file_stream.read(CHUNK)
-                if not chunk:
-                    break
-                hash.update(chunk)
-                total += CHUNK
-                self.progress = float(total) / float(size)
-        finally:
-            file_stream.close( )
-        self.progress = 1.0
-        self.hash = hash.hexdigest()
+        self._compute(file, hashlib.md5(), CHUNK)
 
     def computesha1(self, file, CHUNK=2**16):
-        self.hash = 'Calculating, please wait...'
+        self._compute(file, hashlib.sha1(), CHUNK)
+
+    def _compute(self, file, digest, CHUNK):
+        self.hash = _('Calculating, please wait...')
         self.progress = 0.0
-        try:
-            file_stream = open(file, 'rb')
-            hash = hashlib.sha1()
-            size = os.stat(file).st_size
-            total = 0
+        self.done = False
+        size = os.stat(file).st_size
+        total = 0
+        with open(file, 'rb') as file_stream:
             while True:
                 chunk = file_stream.read(CHUNK)
                 if not chunk:
                     break
-                hash.update(chunk)
-                total += CHUNK
+                digest.update(chunk)
+                total += len(chunk)
                 self.progress = float(total) / float(size)
-        finally:
-            file_stream.close( )
         self.progress = 1.0
-        self.hash = hash.hexdigest()
+        self.hash = digest.hexdigest()
+        self.done = True

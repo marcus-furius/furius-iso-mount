@@ -18,11 +18,10 @@
 import sys
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 
 import globals
 import filehash
-import time
 import threading
 import messagebox
 import aboutbox
@@ -78,44 +77,53 @@ class main_window:
             'key-release-event', self.comboentry_image_key_release)
         if (parameter != ''):
             try:
-                imageaction.mount(parameter, self.image_storage, self.history_storage, self.history_array, self.interface.get_object('radiobutton_fuse').get_active())
+                self.mount_image(parameter)
             except OSError as e:
                 messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
-            except:
-                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+            except Exception as e:
+                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+
+    def mount_image(self, image_file):
+        """Mount image_file and update the UI storage/history to reflect it. Raises on failure."""
+        is_fuse = self.interface.get_object('radiobutton_fuse').get_active()
+        mount_location = imageaction.mount(image_file, is_fuse)
+        self.image_storage.append([mount_location, image_file, str(is_fuse)])
+        imageaction.add_item_to_history(image_file, self.history_array)
+        self.refresh_history_storage()
+
+    def refresh_history_storage(self):
+        self.history_storage.clear()
+        for entry in self.history_array:
+            self.history_storage.append([entry])
 
     def load_previously_mounted_images(self):
         if os.path.exists(globals.mount_list):
             try:
-                file_previous_images = open(globals.mount_list, 'r')
-                previous_image_history = file_previous_images.readlines()
+                with open(globals.mount_list, 'r') as file_previous_images:
+                    previous_image_history = file_previous_images.readlines()
                 for line in previous_image_history:
                     previous_image = line.strip().split(',')
                     self.image_storage.append([previous_image[0], previous_image[1], previous_image[2]])
                 os.remove(globals.mount_list)
             except OSError as e:
                 log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s' % (e.errno, e.strerror)))
-            except:
-                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (sys.exc_info()[0])))
-            finally:
-                file_previous_images.close()
+            except Exception as e:
+                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (e)))
 
     def load_mount_history(self):
         self.history_array = []
         #Load the history
         if os.path.exists(globals.history_list):
             try:
-                file_history = open(globals.history_list, 'r')
-                self.mount_history = file_history.readlines()
+                with open(globals.history_list, 'r') as file_history:
+                    self.mount_history = file_history.readlines()
                 for line in self.mount_history:
-                    self.history_storage.append([line.strip()])
                     self.history_array.append(line.strip())
+                self.refresh_history_storage()
             except OSError as e:
                 log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s' % (e.errno, e.strerror)))
-            except:
-                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (sys.exc_info()[0])))
-            finally:
-                file_history.close()
+            except Exception as e:
+                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (e)))
 
     def create_settings_directory(self):
 
@@ -125,24 +133,22 @@ class main_window:
                 os.mkdir(globals.settings_directory)
             except OSError as e:
                 messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
-            except:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+            except Exception as e:
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def create_settings_file(self):
 
         #Create the setting file if it doesn't exist
         if not os.path.exists(globals.settings_file):
             try:
-                settings_object = open(globals.settings_file, 'w')
                 mount_point_setting = '[mount_options]\nmount_point: %s' % globals.home_directory
-                settings_object.write(mount_point_setting);
+                with open(globals.settings_file, 'w') as settings_object:
+                    settings_object.write(mount_point_setting)
                 log.write(globals.mount_log, _('New settings file created at %s' % globals.settings_file))
             except OSError as e:
                 messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
-            except:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
-            finally:
-                settings_object.close( )
+            except Exception as e:
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def register_small_font_css(self):
         css_provider = Gtk.CssProvider()
@@ -236,35 +242,41 @@ class main_window:
         self.select_and_verify_image()
 
     def button_checksum_clicked(self, data):
-        # Compute the checksum on an independent thread
-        self.abort = False
         if self.interface.get_object('button_checksum').get_label() == _('_Checksum'):
-            selected_image = self.interface.get_object('label_selected_image').get_label()
-            self.interface.get_object('button_checksum').set_label(_('_Cancel'))
-
-            gtk_iteration()
-            checksum = filehash.checksum()
-            log.write(globals.mount_log, _('Checksum generation started...'))
-            if self.interface.get_object('radiobutton_md5').get_active():
-                threading.Thread(target=checksum.computemd5, args=(selected_image,), daemon=True).start()
-            else:
-                threading.Thread(target=checksum.computesha1, args=(selected_image,), daemon=True).start()
-
-            while checksum.hash == _('Calculating, please wait...'):
-                if self.abort:
-                    self.interface.get_object('progressbar_hash').set_text(_('No Checksum Generated'))
-                    self.interface.get_object('progressbar_hash').set_fraction(0)
-                    break
-                gtk_iteration()
-                time.sleep(0.1)
-                self.interface.get_object('progressbar_hash').set_fraction(checksum.progress)
-                self.interface.get_object('progressbar_hash').set_text(checksum.hash)
-            if not self.abort:
-                log.write(globals.mount_log, _('%s:%s' % (selected_image, checksum.hash)))
+            self.start_checksum()
         else: # Cancel
-            self.abort = True
+            self.checksum_abort = True
             log.write(globals.mount_log, _('Checksum generation aborted!'))
+
+    def start_checksum(self):
+        # Compute the checksum on an independent thread, polling it from the GTK main loop
+        # via GLib.timeout_add rather than blocking this signal handler.
+        self.checksum_abort = False
+        self.checksum_image = self.interface.get_object('label_selected_image').get_label()
+        self.interface.get_object('button_checksum').set_label(_('_Cancel'))
+        log.write(globals.mount_log, _('Checksum generation started...'))
+        self.checksum = filehash.checksum()
+        if self.interface.get_object('radiobutton_md5').get_active():
+            target = self.checksum.computemd5
+        else:
+            target = self.checksum.computesha1
+        threading.Thread(target=target, args=(self.checksum_image,), daemon=True).start()
+        GLib.timeout_add(100, self.poll_checksum)
+
+    def poll_checksum(self):
+        progressbar = self.interface.get_object('progressbar_hash')
+        if self.checksum_abort:
+            progressbar.set_text(_('No Checksum Generated'))
+            progressbar.set_fraction(0)
+            self.interface.get_object('button_checksum').set_label(_('_Checksum'))
+            return False
+        progressbar.set_fraction(self.checksum.progress)
+        progressbar.set_text(self.checksum.hash)
+        if not self.checksum.done:
+            return True # keep polling
+        log.write(globals.mount_log, _('%s:%s' % (self.checksum_image, self.checksum.hash)))
         self.interface.get_object('button_checksum').set_label(_('_Checksum'))
+        return False
 
     def select_and_verify_image(self):
         if self.select_image():
@@ -299,13 +311,13 @@ class main_window:
             self.interface.get_object('button_burn').set_sensitive(False)
             return False
         # Next, ensure it's a supported image
-        if selected_file.lower().endswith('.iso') | selected_file.lower().endswith('.img') | selected_file.lower().endswith('.bin') | selected_file.lower().endswith('.mdf') | selected_file.lower().endswith('.nrg'):
+        if selected_file.lower().endswith(globals.SUPPORTED_EXTENSIONS):
             self.interface.get_object('label_selected_image').set_label(selected_file)
             self.interface.get_object('button_mount').set_sensitive(True)
             self.interface.get_object('button_checksum').set_sensitive(True)
             self.interface.get_object('button_burn').set_sensitive(True)
             # Loop method only supports ISO and IMG, so...
-            if selected_file.lower().endswith('.iso') | selected_file.lower().endswith('.img'):
+            if selected_file.lower().endswith(globals.LOOP_SUPPORTED_EXTENSIONS):
                 self.interface.get_object('radiobutton_loop').set_sensitive(True)
             else:
                 self.interface.get_object('radiobutton_loop').set_sensitive(False)
@@ -331,16 +343,16 @@ class main_window:
                     os.remove(globals.mount_log)
                 except OSError as e:
                     log.write(globals.mount_log, _('Error deleting log.\nOS error(%s): %s' % (e.errno, e.strerror)))
-                except:
-                    log.write(globals.mount_log, _('Error deleting log.\nUnexpected error: %s' % (sys.exc_info()[0])))
+                except Exception as e:
+                    log.write(globals.mount_log, _('Error deleting log.\nUnexpected error: %s' % (e)))
 
     def button_mount_clicked(self, data):
         try:
-            imageaction.mount(self.interface.get_object('label_selected_image').get_label(), self.image_storage, self.history_storage, self.history_array, self.interface.get_object('radiobutton_fuse').get_active())
+            self.mount_image(self.interface.get_object('label_selected_image').get_label())
         except OSError as e:
             messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
-        except:
-            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+        except Exception as e:
+            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def treeview_mounted_images_cursor_changed(self, data):
         #First get the tree view selection
@@ -354,17 +366,18 @@ class main_window:
 
     def button_unmount_clicked(self, data):
         try:
-            imageaction.unmount(self.interface.get_object('label_selected_mount_point').get_label(), self.is_mounted_image_fuse, self.image_storage, self.iter)
+            imageaction.unmount(self.interface.get_object('label_selected_mount_point').get_label(), self.is_mounted_image_fuse)
+            self.image_storage.remove(self.iter)
             self.interface.get_object('label_selected_mount_point').set_label(_('No Mount Point Selected'))
             self.interface.get_object('button_unmount').set_sensitive(False)
-        except:
-            messagebox.show(self.interface.get_object('main_window'), _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+        except Exception as e:
+            messagebox.show(self.interface.get_object('main_window'), _('Error unmounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def button_burn_clicked(self, data):
         try:
             imageaction.burn(self.interface.get_object('label_selected_image').get_label())
-        except:
-            messagebox.show(self.interface.get_object('main_window'), _('Error burning image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+        except Exception as e:
+            messagebox.show(self.interface.get_object('main_window'), _('Error burning image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def button_about_clicked(self, data):
         aboutbox.show(self.interface.get_object('main_window'))
@@ -380,11 +393,11 @@ class main_window:
             if file.startswith('file:///') and os.path.isfile(file[7:]):
                 if self.verify_image(file[7:]):
                     try:
-                        imageaction.mount(self.interface.get_object('label_selected_image').get_label(), self.image_storage, self.history_storage, self.history_array, self.interface.get_object('radiobutton_fuse').get_active())
+                        self.mount_image(self.interface.get_object('label_selected_image').get_label())
                     except OSError as e:
                         messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
-                    except:
-                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
+                    except Exception as e:
+                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
 
     def treeview_mounted_images_row_activated(self, path, view_column, user_param1):
         imageaction.browse(self.interface.get_object('label_selected_mount_point').get_label())
@@ -397,25 +410,19 @@ class main_window:
     def clean_up(self, model, path, iter):
         if messagebox.show(self.interface.get_object('main_window'), _('%s is still mounted.\nDo you wish to unmount it before exiting?' % (model.get_value(iter, 1))), Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO) == Gtk.ResponseType.YES:
             try:
-                imageaction.unmount(model.get_value(iter, 0), model.get_value(iter, 2), self.image_storage, iter, True)
-            except:
-                log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
+                imageaction.unmount(model.get_value(iter, 0), model.get_value(iter, 2))
+            except Exception as e:
+                log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (e)))
         else: #write the history to file for loading later
             try:
-                mount_file = open(globals.mount_list, 'a')
                 string = '%s,%s,%s' % (model.get_value(iter, 0), model.get_value(iter, 1), model.get_value(iter, 2))
-                mount_file.write('%s\n' % (string))
+                with open(globals.mount_list, 'a') as mount_file:
+                    mount_file.write('%s\n' % (string))
             except OSError as e:
                 log.write(globals.mount_log, _('Error saving unmounted images to file.\nOS error(%s): %s' % (e.errno, e.strerror)))
-            except:
-                log.write(globals.mount_log, _('Error saving unmounted images to file\nUnexpected error: %s' % (sys.exc_info()[0])))
-            finally:
-                mount_file.close()
+            except Exception as e:
+                log.write(globals.mount_log, _('Error saving unmounted images to file\nUnexpected error: %s' % (e)))
         return False
-
-def gtk_iteration():
-    while Gtk.events_pending():
-        Gtk.main_iteration()
 
 if __name__ == '__main__':
     parameter = ''
