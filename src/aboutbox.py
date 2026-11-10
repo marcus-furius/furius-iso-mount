@@ -35,22 +35,28 @@ def show(parent) :
     dlg.set_version(globals.assembly_version)
     dlg.set_website(globals.assembly_website)
     dlg.set_translator_credits(_('''translator-credits
+        Arabic (ar): machine-translated, unreviewed
         Bulgarian (bg): Svetoslav Stefanov
-        Chinese (Simplified) (zh_CN): XsLiDian
+        Chinese, Simplified (zh_CN): XsLiDian
+        Chinese, Traditional (zh_TW): machine-translated, unreviewed
+        Czech (cs): machine-translated, unreviewed
+        Danish (da): Happyjens
         Dutch (nl): Dirk Roos
-        French (f): bouchard renaud, peterl
+        French (fr): bouchard renaud, peterl
         German (de): Klaus Riesterer
+        Greek (el): Christos Spyroglou
         Hunsrik (hrx): Adriano Steffler
         Italian (it): Christos Spyroglou
-        Greek (el):  Christos Spyroglou
-        Italian (it): Christos Spyroglou
-        Japanese (ja): YAMAKAGE Hideo
+        Korean (ko): machine-translated, unreviewed
         Polish (pl): It's Easy
         Portuguese (pt): Celso Henriques
-        Russian (ru): Alexey Ivanes
-        Spanish (es): Adrián García
+        Portuguese, Brazilian (pt_BR): Adriano Steffler
+        Russian (ru): Alexey Ivanov
+        Slovenian (sl): Launchpad community
+        Spanish (es): Fitoschido
         Swedish (sv): Anders Pamdal
-        Turkish (tr): Emre AYTAÇ'''))
+        Turkish (tr): Emre AYTAÇ
+        Ukrainian (uk): machine-translated, unreviewed'''))
     dlg.set_comments(globals.assembly_description)
     
 
