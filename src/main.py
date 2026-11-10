@@ -79,9 +79,9 @@ class main_window:
             try:
                 self.mount_image(parameter)
             except OSError as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s') % (e.errno, e.strerror), Gtk.MessageType.ERROR)
             except Exception as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def mount_image(self, image_file):
         """Mount image_file and update the UI storage/history to reflect it. Raises on failure."""
@@ -106,9 +106,9 @@ class main_window:
                     self.image_storage.append([previous_image[0], previous_image[1], previous_image[2]])
                 os.remove(globals.mount_list)
             except OSError as e:
-                log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s' % (e.errno, e.strerror)))
+                log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s') % (e.errno, e.strerror))
             except Exception as e:
-                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (e)))
+                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s') % (e))
 
     def load_mount_history(self):
         self.history_array = []
@@ -121,9 +121,9 @@ class main_window:
                     self.history_array.append(line.strip())
                 self.refresh_history_storage()
             except OSError as e:
-                log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s' % (e.errno, e.strerror)))
+                log.write(globals.mount_log, _('Error loading history.\nOS error(%s): %s') % (e.errno, e.strerror))
             except Exception as e:
-                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s' % (e)))
+                log.write(globals.mount_log, _('Error loading history.\nUnexpected error: %s') % (e))
 
     def create_settings_directory(self):
 
@@ -132,9 +132,9 @@ class main_window:
             try:
                 os.mkdir(globals.settings_directory)
             except OSError as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nOS error(%s): %s') % (e.errno, e.strerror), Gtk.MessageType.ERROR)
             except Exception as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings directory.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def create_settings_file(self):
 
@@ -144,11 +144,11 @@ class main_window:
                 mount_point_setting = '[mount_options]\nmount_point: %s' % globals.home_directory
                 with open(globals.settings_file, 'w') as settings_object:
                     settings_object.write(mount_point_setting)
-                log.write(globals.mount_log, _('New settings file created at %s' % globals.settings_file))
+                log.write(globals.mount_log, _('New settings file created at %s') % globals.settings_file)
             except OSError as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nOS error(%s): %s') % (e.errno, e.strerror), Gtk.MessageType.ERROR)
             except Exception as e:
-                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+                messagebox.show(self.interface.get_object('main_window'), _('Error creating settings file.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def register_small_font_css(self):
         css_provider = Gtk.CssProvider()
@@ -274,7 +274,7 @@ class main_window:
         progressbar.set_text(self.checksum.hash)
         if not self.checksum.done:
             return True # keep polling
-        log.write(globals.mount_log, _('%s:%s' % (self.checksum_image, self.checksum.hash)))
+        log.write(globals.mount_log, _('%s:%s') % (self.checksum_image, self.checksum.hash))
         self.interface.get_object('button_checksum').set_label(_('_Checksum'))
         return False
 
@@ -334,7 +334,7 @@ class main_window:
         if os.path.exists(globals.mount_log):
             subprocess.Popen(['gnome-text-editor', globals.mount_log])
         else:
-            messagebox.show(self.interface.get_object('main_window'), _('%s not found.' % (globals.mount_log)))
+            messagebox.show(self.interface.get_object('main_window'), _('%s not found.') % (globals.mount_log))
 
     def button_delete_log_clicked(self, data):
         if os.path.exists(globals.mount_log):
@@ -342,17 +342,17 @@ class main_window:
                 try:
                     os.remove(globals.mount_log)
                 except OSError as e:
-                    log.write(globals.mount_log, _('Error deleting log.\nOS error(%s): %s' % (e.errno, e.strerror)))
+                    log.write(globals.mount_log, _('Error deleting log.\nOS error(%s): %s') % (e.errno, e.strerror))
                 except Exception as e:
-                    log.write(globals.mount_log, _('Error deleting log.\nUnexpected error: %s' % (e)))
+                    log.write(globals.mount_log, _('Error deleting log.\nUnexpected error: %s') % (e))
 
     def button_mount_clicked(self, data):
         try:
             self.mount_image(self.interface.get_object('label_selected_image').get_label())
         except OSError as e:
-            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
+            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s') % (e.errno, e.strerror), Gtk.MessageType.ERROR)
         except Exception as e:
-            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+            messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def treeview_mounted_images_cursor_changed(self, data):
         #First get the tree view selection
@@ -371,13 +371,13 @@ class main_window:
             self.interface.get_object('label_selected_mount_point').set_label(_('No Mount Point Selected'))
             self.interface.get_object('button_unmount').set_sensitive(False)
         except Exception as e:
-            messagebox.show(self.interface.get_object('main_window'), _('Error unmounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+            messagebox.show(self.interface.get_object('main_window'), _('Error unmounting image.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def button_burn_clicked(self, data):
         try:
             imageaction.burn(self.interface.get_object('label_selected_image').get_label())
         except Exception as e:
-            messagebox.show(self.interface.get_object('main_window'), _('Error burning image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+            messagebox.show(self.interface.get_object('main_window'), _('Error burning image.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def button_about_clicked(self, data):
         aboutbox.show(self.interface.get_object('main_window'))
@@ -395,9 +395,9 @@ class main_window:
                     try:
                         self.mount_image(self.interface.get_object('label_selected_image').get_label())
                     except OSError as e:
-                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s' % (e.errno, e.strerror)), Gtk.MessageType.ERROR)
+                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nOS error(%s): %s') % (e.errno, e.strerror), Gtk.MessageType.ERROR)
                     except Exception as e:
-                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s' % (e)), Gtk.MessageType.ERROR)
+                        messagebox.show(self.interface.get_object('main_window'), _('Error mounting image.\nUnexpected error: %s') % (e), Gtk.MessageType.ERROR)
 
     def treeview_mounted_images_row_activated(self, path, view_column, user_param1):
         imageaction.browse(self.interface.get_object('label_selected_mount_point').get_label())
@@ -408,20 +408,20 @@ class main_window:
         Gtk.main_quit()
 
     def clean_up(self, model, path, iter):
-        if messagebox.show(self.interface.get_object('main_window'), _('%s is still mounted.\nDo you wish to unmount it before exiting?' % (model.get_value(iter, 1))), Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO) == Gtk.ResponseType.YES:
+        if messagebox.show(self.interface.get_object('main_window'), _('%s is still mounted.\nDo you wish to unmount it before exiting?') % (model.get_value(iter, 1)), Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO) == Gtk.ResponseType.YES:
             try:
                 imageaction.unmount(model.get_value(iter, 0), model.get_value(iter, 2))
             except Exception as e:
-                log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (e)))
+                log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s') % (e))
         else: #write the history to file for loading later
             try:
                 string = '%s,%s,%s' % (model.get_value(iter, 0), model.get_value(iter, 1), model.get_value(iter, 2))
                 with open(globals.mount_list, 'a') as mount_file:
                     mount_file.write('%s\n' % (string))
             except OSError as e:
-                log.write(globals.mount_log, _('Error saving unmounted images to file.\nOS error(%s): %s' % (e.errno, e.strerror)))
+                log.write(globals.mount_log, _('Error saving unmounted images to file.\nOS error(%s): %s') % (e.errno, e.strerror))
             except Exception as e:
-                log.write(globals.mount_log, _('Error saving unmounted images to file\nUnexpected error: %s' % (e)))
+                log.write(globals.mount_log, _('Error saving unmounted images to file\nUnexpected error: %s') % (e))
         return False
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ def mount(image_file, is_fuse):
         config.read(globals.settings_file)
         mount_root = config.get("mount_options", "mount_point")
     except Exception as e:
-        log.write(globals.mount_log, _('Error reading mount point setting.\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error reading mount point setting.\nUnexpected error: %s') % (e))
         log.write(globals.mount_log, _('Defaulting to home directory for mounting.'))
         mount_root = globals.home_directory
     #Replace any characters that could screw up the new directory's name.
@@ -61,14 +61,14 @@ def mount(image_file, is_fuse):
 
         #Write an entry with instructions on how to remove manually if needed
         log.write(globals.mount_log,
-                  _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :%s\n  :rmdir %s'
-                    % (image_file, mount_location, unmount_hint, mount_location)))
+                  _('%s successfully mounted @ %s. If required, run the following commands to remove:\n  :%s\n  :rmdir %s')
+                    % (image_file, mount_location, unmount_hint, mount_location))
         return mount_location
     except OSError as e:
-        log.write(globals.mount_log, _('Error mounting image.\nOS error: %s' % (e)))
+        log.write(globals.mount_log, _('Error mounting image.\nOS error: %s') % (e))
         raise
     except Exception as e:
-        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error mounting image.\nUnexpected error: %s') % (e))
         raise
 
 
@@ -89,10 +89,10 @@ def add_item_to_history(image_file, history_array):
             for string in history_array:
                 history_file.write('%s\n' %(string))
     except OSError as e:
-        log.write(globals.mount_log, _('Error saving history to file.\nOS error: %s' % (e)))
+        log.write(globals.mount_log, _('Error saving history to file.\nOS error: %s') % (e))
         raise
     except Exception as e:
-        log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error saving history to file\nUnexpected error: %s') % (e))
         raise
 
 def unmount(mount_location, is_mounted_image_fuse):
@@ -109,9 +109,9 @@ def unmount(mount_location, is_mounted_image_fuse):
             if returncode != 0:
                 raise RuntimeError(_('Unmount command exited with status %s.') % returncode)
             os.rmdir(mount_location)
-        log.write(globals.mount_log, _('%s successfully unmounted.'%(mount_location)))
+        log.write(globals.mount_log, _('%s successfully unmounted.') % (mount_location))
     except Exception as e:
-        log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s') % (e))
         raise
 
 def burn(image_file):
@@ -120,7 +120,7 @@ def burn(image_file):
         subprocess.Popen(burn_args)
         log.write(globals.mount_log, shlex.join(burn_args))
     except Exception as e:
-        log.write(globals.mount_log, _('Error burning image.\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error burning image.\nUnexpected error: %s') % (e))
         raise
 
 def browse(mount_location):
@@ -130,5 +130,5 @@ def browse(mount_location):
             subprocess.Popen(browse_args)
             log.write(globals.mount_log, shlex.join(browse_args))
     except Exception as e:
-        log.write(globals.mount_log, _('Error launching nautilus.\nUnexpected error: %s' % (e)))
+        log.write(globals.mount_log, _('Error launching nautilus.\nUnexpected error: %s') % (e))
         raise
