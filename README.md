@@ -4,6 +4,14 @@ A simple GTK+ interface to mount ISO, IMG, BIN, MDF and NRG image files without 
 
 I'm the original developer of this application.
 
+## Install (Debian/Ubuntu)
+
+```
+./install.sh
+```
+
+This installs the required system packages, copies the app to `~/.local/share/furiusisomount`, links a `furiusisomount` launcher into `~/.local/bin`, and adds an entry to your application menu.
+
 ## Requirements
 
 - Python 3

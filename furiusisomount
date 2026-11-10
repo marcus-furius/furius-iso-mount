@@ -1,3 +1,4 @@
 #!/bin/sh
 
-python3 "src/main.py" "$1"
+DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+exec python3 "$DIR/src/main.py" "$1"
