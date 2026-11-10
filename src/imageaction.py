@@ -130,12 +130,9 @@ def unmount(mount_location, is_mounted_image_fuse, image_storage, iter, is_shutd
         log.write(globals.mount_log, _('Error unmounting image.\nUnexpected error: %s' % (sys.exc_info()[0])))
         raise
 
-def burn(image_file, is_brasero = True):
+def burn(image_file):
     try:
-        if is_brasero:
-            burn_command = "brasero --image '%s'" % (image_file)
-        else:
-            burn_command = "nautilus-cd-burner --source-iso='%s'" % (image_file)
+        burn_command = "brasero --image '%s'" % (image_file)
         subprocess.Popen(burn_command, shell=True)
         log.write(globals.mount_log, burn_command)
     except:

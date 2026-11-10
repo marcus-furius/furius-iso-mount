@@ -18,7 +18,7 @@
 import sys
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, Pango
+from gi.repository import Gtk, Gdk
 
 import globals
 import filehash
@@ -47,6 +47,7 @@ class main_window:
         #Set the Glade file
         self.interface = Gtk.Builder()
         self.interface.add_from_file(globals.application_interface)
+        self.register_small_font_css()
         self.create_settings_directory()
         self.create_settings_file()
         log.write(globals.mount_log, _('Application started...'))
@@ -143,6 +144,15 @@ class main_window:
             finally:
                 settings_object.close( )
 
+    def register_small_font_css(self):
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(b'.small-font { font-size: 8px; }')
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+    def add_small_font_class(self, widget):
+        widget.get_style_context().add_class('small-font')
+
     def set_icons_and_text(self):
 
         #Set the Icons and Text
@@ -150,12 +160,10 @@ class main_window:
         #Allowbutton imagestobe shown
         gtk_settings = self.interface.get_object('main_window').get_settings()
         gtk_settings.set_property("gtk-button-images", True)
-        self.browse_button_image = Gtk.Image()
-        self.browse_button_image.set_from_stock(Gtk.STOCK_OPEN, Gtk.IconSize.MENU)
+        self.browse_button_image = Gtk.Image.new_from_icon_name('document-open', Gtk.IconSize.MENU)
         self.interface.get_object('button_browse').set_image(self.browse_button_image)
         self.interface.get_object('button_browse').set_label(_('_Browse...'))
-        self.button_mount_image = Gtk.Image()
-        self.button_mount_image.set_from_stock("gtk-harddisk", Gtk.IconSize.MENU)
+        self.button_mount_image = Gtk.Image.new_from_icon_name('drive-harddisk', Gtk.IconSize.MENU)
         self.interface.get_object('button_mount').set_image(self.button_mount_image)
         self.interface.get_object('button_mount').set_label(_('_Mount'))
         self.button_checksum_image = Gtk.Image()
@@ -166,28 +174,30 @@ class main_window:
         self.button_burn_image.set_from_file(globals.image_burn_button)
         self.interface.get_object('button_burn').set_image(self.button_burn_image)
         self.interface.get_object('button_burn').set_label(_('Bur_n'))
-        self.button_unmount_image = Gtk.Image()
-        self.button_unmount_image.set_from_stock(Gtk.STOCK_CANCEL, Gtk.IconSize.MENU)
+        self.button_unmount_image = Gtk.Image.new_from_icon_name('process-stop', Gtk.IconSize.MENU)
         self.interface.get_object('button_unmount').set_image(self.button_unmount_image)
         self.interface.get_object('button_unmount').set_label(_('_Unmount'))
+        self.button_about_image = Gtk.Image.new_from_icon_name('help-about', Gtk.IconSize.MENU)
+        self.interface.get_object('button_about').set_image(self.button_about_image)
+        self.interface.get_object('button_about').set_label(_('_About'))
         self.interface.get_object('button_view_log').set_label(_('View Log'))
         self.interface.get_object('button_delete_log').set_label(_('Delete Log'))
         self.interface.get_object('label_select_image').set_label(_('Select Image'))
         self.interface.get_object('label_selected_image').set_label(_('No Image Selected'))
-        self.interface.get_object('label_selected_image').modify_font(Pango.FontDescription('8'))
+        self.add_small_font_class(self.interface.get_object('label_selected_image'))
         self.interface.get_object('progressbar_hash').set_text(_('No Checksum Generated'))
-        self.interface.get_object('progressbar_hash').modify_font(Pango.FontDescription('8'))
+        self.add_small_font_class(self.interface.get_object('progressbar_hash'))
         self.interface.get_object('label_selected_mount_point').set_label(_('No Mount Point Selected'))
-        self.interface.get_object('label_selected_mount_point').modify_font(Pango.FontDescription('8'))
+        self.add_small_font_class(self.interface.get_object('label_selected_mount_point'))
         self.interface.get_object('frame_mounted_images').set_label(_('Mounted Images:'))
         self.interface.get_object('label_drag_prompt').set_label(_('Drag image files into above window to quickly mount'))
-        self.interface.get_object('label_drag_prompt').modify_font(Pango.FontDescription('8'))
+        self.add_small_font_class(self.interface.get_object('label_drag_prompt'))
 
     def set_mounted_image_treeview(self):
 
         #Set treeview for images
         self.treeview = self.interface.get_object('treeview_mounted_images')
-        self.treeview.modify_font(Pango.FontDescription('sans 8'))
+        self.add_small_font_class(self.treeview)
         self.treeview.set_model(self.image_storage)
         #Create columns
         self.column_mount_point = Gtk.TreeViewColumn(_('Mount Point'), Gtk.CellRendererText(), text=0)
@@ -265,8 +275,8 @@ class main_window:
         dialog = Gtk.FileChooserDialog(_('Open Image..'),
                        None,
                        Gtk.FileChooserAction.OPEN,
-                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+                       (_('_Cancel'), Gtk.ResponseType.CANCEL,
+                        _('_Open'), Gtk.ResponseType.OK))
         dialog.set_default_response(Gtk.ResponseType.OK)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -352,7 +362,7 @@ class main_window:
 
     def button_burn_clicked(self, data):
         try:
-            imageaction.burn(self.interface.get_object('label_selected_image').get_label(), self.interface.get_object('radiobutton_brasero').get_active())
+            imageaction.burn(self.interface.get_object('label_selected_image').get_label())
         except:
             messagebox.show(self.interface.get_object('main_window'), _('Error burning image.\nUnexpected error: %s' % (sys.exc_info()[0])), Gtk.MessageType.ERROR)
 

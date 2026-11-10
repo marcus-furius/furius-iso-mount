@@ -9,7 +9,7 @@ I'm the original developer of this application.
 - Python 3
 - PyGObject (`python3-gi`) with GTK 3
 - `fuseiso` for FUSE-based mounting, or `pkexec` + `mount`/`umount` for loopback mounting
-- `brasero` or `nautilus` for burning/browsing images, as selected in the UI
+- `brasero` for burning images, `nautilus` for browsing mounted images (`nautilus-cd-burner` no longer exists, so burning is Brasero-only now)
 
 ## History
 
